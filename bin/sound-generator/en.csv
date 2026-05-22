@@ -1,0 +1,26 @@
+#path,#text to play,#options,#description
+app/timeout.wav,Timed out,,
+
+#events,#text to play
+events/alerts/lowvoltage.wav,Low Voltage,,
+events/alerts/lowfuel.wav,Low Fuel,,
+events/alerts/armed.wav,Armed,,
+events/alerts/disarmed.wav,Disarmed,,
+events/alerts/profile.wav,Profile,,
+events/alerts/rates.wav,Rates,,
+
+
+
+
+#status,#text to play
+status/alerts/current.wav,Current,,
+status/alerts/esc.wav,Esc Temperature,,
+status/alerts/mcu.wav,MCU Temperature,,
+status/alerts/fuel.wav,Fuel,,
+status/alerts/headspeed.wav,Head Speed,,
+status/alerts/lowfuel.wav,Low Fuel,,
+status/alerts/lowvoltage.wav,Low Voltage,,
+status/alerts/lq.wav,Link Quality,,
+status/alerts/remaining.wav,remaining,,
+status/alerts/timer.wav,timer,,
+status/alerts/voltage.wav,voltage,,

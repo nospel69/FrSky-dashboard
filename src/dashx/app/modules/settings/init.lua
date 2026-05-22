@@ -1,0 +1,10 @@
+--[[
+  Copyright (C) 2025 Rob Thomson
+  GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
+]] --
+
+local dashx = require("dashx")
+
+local init = {title = "Settings", section = "tools", script = "settings.lua", image = "settings.png", order = 10, offline = true, ethosversion = {1, 6, 2}}
+
+return init

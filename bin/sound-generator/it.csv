@@ -1,0 +1,25 @@
+#app,#text to play
+app/timeout.wav,Fuori Tempo Massimo,,
+
+#events,#text to play
+events/alerts/lowvoltage.wav,Voltaggio basso,,
+events/alerts/lowfuel.wav,carburante basso,,
+events/alerts/armed.wav,Armato,,
+events/alerts/disarmed.wav,Disarmato,,
+events/alerts/profile.wav,Profilo,,
+events/alerts/rates.wav,Escursioni,,
+
+
+
+#status,#text to play
+status/alerts/current.wav,Corrente,,
+status/alerts/esc.wav,Esc Temperatura,,
+status/alerts/mcu.wav,MCU Temperatura,,
+status/alerts/fuel.wav,Carburante,,
+status/alerts/headspeed.wav,Velocità Rotore,,
+status/alerts/lowfuel.wav,carburante basso,,
+status/alerts/lowvoltage.wav,Voltaggio basso,,
+status/alerts/lq.wav,Qualità Link,,
+status/alerts/remaining.wav,rimanenti,,
+status/alerts/timer.wav,timer,,
+status/alerts/voltage.wav,voltaggio,,

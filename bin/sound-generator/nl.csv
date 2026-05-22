@@ -1,0 +1,26 @@
+#app,#text to play
+app/timeout.wav,Timed out,,
+
+
+#events,#text to play
+events/alerts/lowvoltage.wav,Laag Voltage,,
+events/alerts/lowfuel.wav,Laag brandstof,,
+events/alerts/armed.wav,Armed,,
+events/alerts/disarmed.wav,Disarmed,,
+events/alerts/profile.wav,Profiel,,
+events/alerts/rates.wav,Rates,,
+
+
+
+#status,#text to play
+status/alerts/current.wav,Stroom,,
+status/alerts/esc.wav,Esc Temperatuur,,
+status/alerts/mcu.wav,MCU Temperatuur,,
+status/alerts/fuel.wav,Brandstof,,
+status/alerts/headspeed.wav,Rotortoerental,,
+status/alerts/lowfuel.wav,Laag brandstof,,
+status/alerts/lowvoltage.wav,Laag Voltage,,
+status/alerts/lq.wav,Link kwaliteit,,
+status/alerts/remaining.wav, Over,,
+status/alerts/timer.wav,timer,,
+status/alerts/voltage.wav,voltage,,
