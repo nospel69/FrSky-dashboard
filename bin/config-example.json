@@ -1,6 +1,7 @@
 {
-  "git_src": "C:\\GitHub\\robthomson\\dashx-ethos",
-  "tgt_name": "dashx",
+  "git_src": "C:\Users\nospe\Documents\GitHub\FrSky-dashboard",
+  "git_url": "https://github.com/nospel69/FrSky-dashboard", 
+  "tgt_name": "FrSky-dashboard",
   "ethossuite_bin": "C:\\Program Files\\Ethos Suite\\Ethos Suite.exe",
   "serial_vid": "0483",
   "serial_pid": "5750",
