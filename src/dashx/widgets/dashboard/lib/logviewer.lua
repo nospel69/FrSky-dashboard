@@ -3,7 +3,7 @@
   GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
 ]] --
 
-local ofs3 = require("ofs3")
+local ofs3 = require("FSDash")
 
 local logviewer = {}
 local utils = ofs3.widgets.dashboard.utils

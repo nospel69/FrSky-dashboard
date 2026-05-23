@@ -3,7 +3,7 @@
   GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
 ]] --
 
-local dashx = {
+local fsdash = {
     session = {},
     widgets = {},
     tools = {},
@@ -12,16 +12,16 @@ local dashx = {
     app = {guiIsRunning = false}
 }
 
-package.loaded.dashx = dashx
+package.loaded.FSDash = fsdash
 
 if not FONT_M then
     FONT_M = FONT_STD
 end
 
-dashx.config = {
-    toolName = "DashX",
-    baseDir = "dashx",
-    preferences = "dashx.user",
+fsdash.config = {
+    toolName = "FSDash",
+    baseDir = "FSDash",
+    preferences = "FSDash.user",
     version = {major = 2, minor = 3, revision = 0, suffix = "DEV"},
     ethosVersion = {1, 6, 2},
     supportedMspApiVersion = {"12.07", "12.08", "12.09"}
@@ -69,30 +69,30 @@ local userPreferenceDefaults = {
 }
 
 local function ensureSharedModules()
-    if not dashx.ini then
-        dashx.ini = assert(loadfile("lib/ini.lua"))()
+    if not fsdash.ini then
+        fsdash.ini = assert(loadfile("lib/ini.lua"))()
     end
 
-    if not dashx.utils then
-        dashx.utils = assert(loadfile("lib/utils.lua"))(dashx.config)
+    if not fsdash.utils then
+        fsdash.utils = assert(loadfile("lib/utils.lua"))(fsdash.config)
     end
 
-    if not dashx._sessionInitialized then
-        dashx.utils.session()
-        dashx._sessionInitialized = true
+    if not fsdash._sessionInitialized then
+        fsdash.utils.session()
+        fsdash._sessionInitialized = true
     end
 
-    if not dashx.preferences then
-        local prefDir = "SCRIPTS:/" .. dashx.config.preferences
+    if not fsdash.preferences then
+        local prefDir = "SCRIPTS:/" .. fsdash.config.preferences
         local prefFile = prefDir .. "/preferences.ini"
         os.mkdir(prefDir)
 
-        local existing = dashx.ini.load_ini_file(prefFile) or {}
-        local merged = dashx.ini.merge_ini_tables(existing, userPreferenceDefaults)
-        dashx.preferences = merged
+        local existing = fsdash.ini.load_ini_file(prefFile) or {}
+        local merged = fsdash.ini.merge_ini_tables(existing, userPreferenceDefaults)
+        fsdash.preferences = merged
 
-        if not dashx.ini.ini_tables_equal(existing, merged) then
-            dashx.ini.save_ini_file(prefFile, merged)
+        if not fsdash.ini.ini_tables_equal(existing, merged) then
+            fsdash.ini.save_ini_file(prefFile, merged)
         end
     end
 end
@@ -100,53 +100,53 @@ end
 local function ensureWidgetModules()
     ensureSharedModules()
 
-    dashx.tasks = dashx.tasks or {}
+    fsdash.tasks = fsdash.tasks or {}
 
-    if not dashx.telemetry then
-        dashx.telemetry = assert(loadfile("lib/telemetry.lua"))(dashx.config)
+    if not fsdash.telemetry then
+        fsdash.telemetry = assert(loadfile("lib/telemetry.lua"))(fsdash.config)
     end
-    dashx.tasks.telemetry = dashx.telemetry
+    fsdash.tasks.telemetry = fsdash.telemetry
 
-    if not dashx.logging then
-        dashx.logging = assert(loadfile("lib/logging.lua"))(dashx.config)
+    if not fsdash.logging then
+        fsdash.logging = assert(loadfile("lib/logging.lua"))(fsdash.config)
     end
-    dashx.tasks.logging = dashx.logging
+    fsdash.tasks.logging = fsdash.logging
 
-    if not dashx.sensors then
-        dashx.sensors = assert(loadfile("lib/sensors.lua"))(dashx.config)
-    end
-
-    if not dashx.events then
-        dashx.events = assert(loadfile("lib/events.lua"))(dashx.config)
+    if not fsdash.sensors then
+        fsdash.sensors = assert(loadfile("lib/sensors.lua"))(fsdash.config)
     end
 
-    if not dashx.runtime then
-        dashx.runtime = assert(loadfile("lib/runtime.lua"))(dashx.config)
+    if not fsdash.events then
+        fsdash.events = assert(loadfile("lib/events.lua"))(fsdash.config)
     end
 
-    if not dashx.widgets.dashboard then
-        dashx.widgets.dashboard = assert(loadfile("widgets/dashboard/dashboard.lua"))(dashx.config)
+    if not fsdash.runtime then
+        fsdash.runtime = assert(loadfile("lib/runtime.lua"))(fsdash.config)
     end
 
-    if not dashx.widgets.dashboardConfigure then
-        dashx.widgets.dashboardConfigure = assert(loadfile("widgets/dashboard/configure.lua"))(dashx.config)
+    if not fsdash.widgets.dashboard then
+        fsdash.widgets.dashboard = assert(loadfile("widgets/dashboard/dashboard.lua"))(fsdash.config)
+    end
+
+    if not fsdash.widgets.dashboardConfigure then
+        fsdash.widgets.dashboardConfigure = assert(loadfile("widgets/dashboard/configure.lua"))(fsdash.config)
     end
 end
 
 local function ensureLogsTool()
     ensureSharedModules()
 
-    if not dashx.logs then
-        dashx.logs = assert(loadfile("lib/logs.lua"))(dashx.config)
+    if not fsdash.logs then
+        fsdash.logs = assert(loadfile("lib/logs.lua"))(fsdash.config)
     end
 
-    if not dashx.tools.logs then
-        dashx.tools.logs = assert(loadfile("tools/logs.lua"))(dashx.config)
+    if not fsdash.tools.logs then
+        fsdash.tools.logs = assert(loadfile("tools/logs.lua"))(fsdash.config)
     end
 end
 
-function dashx.version()
-    local version = dashx.config.version
+function fsdash.version()
+    local version = fsdash.config.version
     return {
         version = string.format("%d.%d.%d-%s", version.major, version.minor, version.revision, version.suffix),
         major = version.major,
@@ -158,17 +158,17 @@ end
 
 local function callWidget(method, ...)
     ensureWidgetModules()
-    return dashx.widgets.dashboard[method](...)
+    return fsdash.widgets.dashboard[method](...)
 end
 
 local function callWidgetConfigure(method, ...)
     ensureWidgetModules()
-    return dashx.widgets.dashboardConfigure[method](...)
+    return fsdash.widgets.dashboardConfigure[method](...)
 end
 
 local function callLogsTool(method, ...)
     ensureLogsTool()
-    local tool = dashx.tools.logs
+    local tool = fsdash.tools.logs
     local handler = tool and tool[method]
     if handler then
         return handler(...)
@@ -176,7 +176,7 @@ local function callLogsTool(method, ...)
 end
 
 local function closeLogsTool(...)
-    local tool = dashx.tools and dashx.tools.logs
+    local tool = fsdash.tools and fsdash.tools.logs
     if tool and tool.close then
         return tool.close(...)
     end
@@ -189,7 +189,7 @@ local function loadToolIcon(path)
 
     local candidates = {
         path,
-        "SCRIPTS:/" .. dashx.config.baseDir .. "/" .. path
+        "SCRIPTS:/" .. fsdash.config.baseDir .. "/" .. path
     }
 
     for _, candidate in ipairs(candidates) do
@@ -213,8 +213,8 @@ end
 
 local function registerWidget()
     system.registerWidget({
-        key = "dshxdsh",
-        name = "DashX",
+        key = "FS-Dash Dashboard",
+        name = "FSDashboard",
         create = function(...)
             return callWidget("create", ...)
         end,
@@ -250,7 +250,7 @@ local function registerLogsTool()
     end
 
     system.registerSystemTool({
-        name = "DashX Logs",
+        name = "FSDashboard Logs",
         icon = loadToolIcon("app/gfx/icon.png"),
         create = function(...)
             return callLogsTool("create", ...)
@@ -272,7 +272,7 @@ end
 
 local function init()
     ensureSharedModules()
-    dashx.simevent = dashx.simevent or {telemetry_state = true}
+    fsdash.simevent = fsdash.simevent or {telemetry_state = true}
     registerWidget()
     registerLogsTool()
 end

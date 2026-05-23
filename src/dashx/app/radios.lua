@@ -3,7 +3,7 @@
   GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
 ]] --
 
-local dashx = require("dashx")
+local dashx = require("FSDash")
 local LCD_W, LCD_H = dashx.utils.getWindowSize()
 local resolution = LCD_W .. "x" .. LCD_H
 

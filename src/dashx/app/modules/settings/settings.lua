@@ -3,7 +3,7 @@
   GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
 ]] --
 
-local dashx = require("dashx")
+local dashx = require("FSDash")
 
 local S_PAGES = {
     {name = "General", script = "general.lua", image = "general.png"}, {name = "Dashboard", script = "dashboard.lua", image = "dashboard.png"},

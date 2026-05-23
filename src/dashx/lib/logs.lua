@@ -3,13 +3,13 @@
   GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
 ]] --
 
-local dashx = require("dashx")
+local dashx = require("FSDash")
 
 local logs = {}
 
 local ROOT_DIR = "LOGS:"
-local BASE_DIR = "LOGS:/dashx"
-local TELEMETRY_DIR = "LOGS:/dashx/telemetry"
+local BASE_DIR = "LOGS:/FS-dash/"
+local TELEMETRY_DIR = "LOGS:/FS-dash/telemetry"
 
 local function ensureDirectories()
     os.mkdir(ROOT_DIR)

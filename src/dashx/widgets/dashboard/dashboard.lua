@@ -3,7 +3,7 @@
   GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
 ]] --
 
-local dashx = require("dashx")
+local fsdash = require("FSDash")
 
 local dashboard = {}
 
@@ -14,8 +14,8 @@ local supportedResolutions = {
 }
 
 local DEFAULT_THEME = "system/default"
-local themesBasePath = "SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/themes/"
-local themesUserPath = "SCRIPTS:/" .. dashx.config.preferences .. "/dashboard/"
+local themesBasePath = "SCRIPTS:/" .. fsdash.config.baseDir .. "/widgets/dashboard/themes/"
+local themesUserPath = "SCRIPTS:/" .. fsdash.config.preferences .. "/dashboard/"
 
 local currentState = nil
 local loadedStates = {}
@@ -69,9 +69,9 @@ function dashboard.closeToolbar()
 end
 
 local function ensureDashboardLibraries()
-    dashboard.utils = dashboard.utils or assert(loadfile("SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/lib/utils.lua"))()
-    dashboard.loaders = dashboard.loaders or assert(loadfile("SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/lib/loaders.lua"))()
-    dashboard.toolbar = dashboard.toolbar or assert(loadfile("SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/lib/toolbar.lua"))()
+    dashboard.utils = dashboard.utils or assert(loadfile("SCRIPTS:/" .. fsdash.config.baseDir .. "/widgets/dashboard/lib/utils.lua"))()
+    dashboard.loaders = dashboard.loaders or assert(loadfile("SCRIPTS:/" .. fsdash.config.baseDir .. "/widgets/dashboard/lib/loaders.lua"))()
+    dashboard.toolbar = dashboard.toolbar or assert(loadfile("SCRIPTS:/" .. fsdash.config.baseDir .. "/widgets/dashboard/lib/toolbar.lua"))()
 end
 
 local function consumeTouchSequence(value)
@@ -93,8 +93,8 @@ local function consumeTouchSequence(value)
 end
 
 local function getThemeForState(state)
-    local modelPrefs = dashx.session.modelPreferences and dashx.session.modelPreferences.dashboard or nil
-    local userPrefs = dashx.preferences and dashx.preferences.dashboard or {}
+    local modelPrefs = fsdash.session.modelPreferences and fsdash.session.modelPreferences.dashboard or nil
+    local userPrefs = fsdash.preferences and fsdash.preferences.dashboard or {}
     local value = modelPrefs and modelPrefs["theme_" .. state] or nil
 
     if value == "nil" then
@@ -195,7 +195,7 @@ local function loadObjectType(box)
     end
 
     if dashboard._moduleCache[objectType] == nil then
-        local objectPath = "SCRIPTS:/" .. dashx.config.baseDir .. "/widgets/dashboard/objects/" .. objectType .. ".lua"
+        local objectPath = "SCRIPTS:/" .. fsdash.config.baseDir .. "/widgets/dashboard/objects/" .. objectType .. ".lua"
         local loader = loadfile(objectPath)
         if loader then
             local ok, module = pcall(loader)
@@ -237,7 +237,7 @@ local function reloadTheme()
     dashboard.utils.resetImageCache()
     dashboard.boxRects = {}
     currentState = nil
-    dashx.theme.version = (dashx.theme.version or 0) + 1
+    fsdash.theme.version = (fsdash.theme.version or 0) + 1
     forceFullRepaint = true
 end
 
@@ -371,7 +371,7 @@ local function buildRects(module)
 end
 
 local function ensureState()
-    local nextState = dashx.flightmode.current or "preflight"
+    local nextState = fsdash.flightmode.current or "preflight"
     if nextState ~= currentState then
         currentState = nextState
         local module = loadedStates[currentState]
@@ -422,7 +422,7 @@ local function getOverlayMessage(state)
         return "Your theme did not load correctly. Falling back to default theme."
     end
 
-    if not dashx.session.telemetryState and state ~= "postflight" then
+    if not fsdash.session.telemetryState and state ~= "postflight" then
         return "CONNECTING"
     end
 
@@ -466,7 +466,7 @@ end
 
 function dashboard.create()
     ensureDashboardLibraries()
-    os.mkdir("SCRIPTS:/" .. dashx.config.preferences .. "/dashboard/")
+    os.mkdir("SCRIPTS:/" .. fsdash.config.preferences .. "/dashboard/")
     reloadTheme()
     return {}
 end
@@ -484,13 +484,13 @@ function dashboard.listThemes()
         end
 
         for _, folder in ipairs(folders) do
-            if folder ~= "." and folder ~= ".." and not folder:match("%.%a+$") and dashx.utils.dir_exists(basePath, folder) then
+            if folder ~= "." and folder ~= ".." and not folder:match("%a+$") and fsdash.utils.dir_exists(basePath, folder) then
                 local initPath = basePath .. folder .. "/init.lua"
                 local chunk = loadfile(initPath)
                 if chunk then
                     local ok, initTable = pcall(chunk)
                     if ok and type(initTable) == "table" and type(initTable.name) == "string" then
-                        if not initTable.developer or (dashx.preferences and dashx.preferences.developer and dashx.preferences.developer.devtools == true) then
+                        if not initTable.developer or (fsdash.preferences and fsdash.preferences.developer and fsdash.preferences.developer.devtools == true) then
                             count = count + 1
                             themes[count] = {
                                 name = initTable.name,
@@ -508,8 +508,8 @@ function dashboard.listThemes()
 
     scanThemes(themesBasePath, "system")
 
-    local userBasePath = "SCRIPTS:/" .. dashx.config.preferences .. "/"
-    if dashx.utils.dir_exists(userBasePath, "dashboard") then
+    local userBasePath = "SCRIPTS:/" .. fsdash.config.preferences .. "/"
+    if fsdash.utils.dir_exists(userBasePath, "dashboard") then
         scanThemes(themesUserPath, "user")
     end
 
@@ -517,20 +517,20 @@ function dashboard.listThemes()
 end
 
 function dashboard.getPreference(key)
-    if not dashx.session.modelPreferences or not dashboard.currentWidgetPath then
+    if not fsdash.session.modelPreferences or not dashboard.currentWidgetPath then
         return nil
     end
 
-    return dashx.ini.getvalue(dashx.session.modelPreferences, dashboard.currentWidgetPath, key)
+    return fsdash.ini.getvalue(fsdash.session.modelPreferences, dashboard.currentWidgetPath, key)
 end
 
 function dashboard.savePreference(key, value)
-    if not dashx.session.modelPreferences or not dashx.session.modelPreferencesFile or not dashboard.currentWidgetPath then
+    if not fsdash.session.modelPreferences or not fsdash.session.modelPreferencesFile or not dashboard.currentWidgetPath then
         return false
     end
 
-    dashx.ini.setvalue(dashx.session.modelPreferences, dashboard.currentWidgetPath, key, value)
-    return dashx.ini.save_ini_file(dashx.session.modelPreferencesFile, dashx.session.modelPreferences)
+    fsdash.ini.setvalue(fsdash.session.modelPreferences, dashboard.currentWidgetPath, key, value)
+    return fsdash.ini.save_ini_file(fsdash.session.modelPreferencesFile, fsdash.session.modelPreferences)
 end
 
 function dashboard.resetFlightModeAsk()
@@ -538,8 +538,8 @@ function dashboard.resetFlightModeAsk()
         {
             label = "          OK           ",
             action = function()
-                if dashx.runtime and dashx.runtime.resetFlight then
-                    dashx.runtime.resetFlight()
+                if fsdash.runtime and fsdash.runtime.resetFlight then
+                    fsdash.runtime.resetFlight()
                 end
                 if model and type(model.resetFlight) == "function" then
                     pcall(model.resetFlight)
@@ -603,11 +603,11 @@ function dashboard.wakeup(widget)
             return
         end
         lastHiddenWakeAt = now
-        dashx.runtime.wakeup()
+        fsdash.runtime.wakeup()
         return
     end
 
-    local runtimeState = dashx.runtime.wakeup()
+    local runtimeState = fsdash.runtime.wakeup()
 
     local width, height = lcd.getWindowSize()
     unsupportedResolution = not dashboard.utils.supportedResolution(width, height, supportedResolutions)
@@ -626,12 +626,12 @@ function dashboard.wakeup(widget)
         end
     end
 
-    if dashx.session and dashx.session.dashboardThemeReloadPending then
-        dashx.session.dashboardThemeReloadPending = false
-        local prefFile = "SCRIPTS:/" .. dashx.config.preferences .. "/preferences.ini"
-        local freshPrefs = dashx.ini.load_ini_file(prefFile)
-        if freshPrefs and freshPrefs.dashboard and dashx.preferences then
-            dashx.preferences.dashboard = freshPrefs.dashboard
+    if fsdash.session and fsdash.session.dashboardThemeReloadPending then
+        fsdash.session.dashboardThemeReloadPending = false
+        local prefFile = "SCRIPTS:/" .. fsdash.config.preferences .. "/preferences.ini"
+        local freshPrefs = fsdash.ini.load_ini_file(prefFile)
+        if freshPrefs and freshPrefs.dashboard and fsdash.preferences then
+            fsdash.preferences.dashboard = freshPrefs.dashboard
         end
         reloadTheme()
     end

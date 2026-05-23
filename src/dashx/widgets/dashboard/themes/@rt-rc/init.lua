@@ -3,7 +3,7 @@
   GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
 ]] --
 
-local dashx = require("dashx")
+local dashx = require("FSDash")
 
 local init = {name = "@RT-RC", preflight = "preflight.lua", inflight = "inflight.lua", postflight = "postflight.lua", standalone = false}
 

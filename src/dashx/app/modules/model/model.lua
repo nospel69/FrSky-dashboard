@@ -3,7 +3,7 @@
   GPLv3 — https://www.gnu.org/licenses/gpl-3.0.en.html
 ]] --
 
-local dashx = require("dashx")
+local dashx = require("FSDash")
 local enableWakeup = false
 
 local S_PAGES = {{name = "Triggers", script = "triggers.lua", image = "triggers.png"}, {name = "Battery", script = "battery.lua", image = "battery.png"}}
