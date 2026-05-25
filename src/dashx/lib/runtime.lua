@@ -166,12 +166,14 @@ local function initializeRxMap()
     local map = dashx.session.rx.map
     map.aileron = 0
     map.elevator = 1
-    map.collective = 2
+    map.throttle = 2
     map.rudder = 3
     map.arm = 4
-    map.throttle = 5
+    map.collective = 5
+    map.flaps = 5
     map.mode = 6
-    map.headspeed = 7
+    map.gear = 6
+    map.rescue = 7
 
     channelSources = {}
 end
