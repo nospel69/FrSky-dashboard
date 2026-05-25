@@ -102,13 +102,13 @@ python build-single-json.py --only en de fr
 
 ### Output
 
-The script creates merged files in `scripts/dashx/i18n/`:
-- `scripts/dashx/i18n/en.json`
-- `scripts/dashx/i18n/de.json`
-- `scripts/dashx/i18n/es.json`
-- `scripts/dashx/i18n/fr.json`
-- `scripts/dashx/i18n/it.json`
-- `scripts/dashx/i18n/nl.json`
+The script creates merged files in `scripts/fsdash/i18n/`:
+- `scripts/fsdash/i18n/en.json`
+- `scripts/fsdash/i18n/de.json`
+- `scripts/fsdash/i18n/es.json`
+- `scripts/fsdash/i18n/fr.json`
+- `scripts/fsdash/i18n/it.json`
+- `scripts/fsdash/i18n/nl.json`
 
 These merged files are what the dashboard actually uses.
 
