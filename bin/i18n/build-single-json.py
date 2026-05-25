@@ -7,6 +7,9 @@ from collections import defaultdict
 # Source root: i18n/json/**/<locale>.json
 JSON_ROOT = Path(__file__).parent / "json"
 
+# Keep top-level locale files merged at the root of the output JSON.
+ROOT_NAMESPACE = "."
+
 # Output root: scripts/fsdash/i18n/<locale>.json
 OUT_DIR = (Path(__file__).parent / ".." / ".." / "scripts" / "fsdash" / "i18n").resolve()
 
@@ -18,8 +21,7 @@ def insert_nested(root: dict, rel_dir: str, leaf: dict) -> None:
             if not part:
                 continue
             cur = cur.setdefault(part, {})
-  
-	  # shallow-merge at this level
+    # shallow-merge at this level
     for key, value in leaf.items():
         if isinstance(value, dict) and isinstance(cur.get(key), dict):
             cur[key] = {**cur[key], **value}
@@ -27,7 +29,7 @@ def insert_nested(root: dict, rel_dir: str, leaf: dict) -> None:
             cur[key] = value
 
 def source_namespace(rel_dir: str) -> str:
-    """Top-level locale files are treated as the dashboard namespace."""
+    """Top-level locale files are merged at the root namespace."""
     if rel_dir in ("", "."):
         return ROOT_NAMESPACE
     return rel_dir

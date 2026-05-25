@@ -45,6 +45,11 @@
       "translation": "Temperatura ESC",
       "needs_translation": "false"
     },
+    "temp1": {
+      "english": "ESC Temperature",
+      "translation": "ESC Temperature",
+      "needs_translation": true
+    },
     "rate_profile": {
       "english": "Rate Profile",
       "translation": "Perfil Tasas",
@@ -144,6 +149,66 @@
       "english": "Arming Disable",
       "translation": "Desactivar Armado",
       "needs_translation": "false"
+    },
+    "RPM": {
+      "english": "RPM",
+      "translation": "RPM",
+      "needs_translation": true
+    },
+    "RSSI900M": {
+      "english": "RSSI 900MHz",
+      "translation": "RSSI 900MHz",
+      "needs_translation": true
+    },
+    "RX": {
+      "english": "RX",
+      "translation": "RX",
+      "needs_translation": true
+    },
+    "VFAS": {
+      "english": "VFAS",
+      "translation": "VFAS",
+      "needs_translation": true
+    },
+    "Bat1cons.": {
+      "english": "Battery Consumption",
+      "translation": "Battery Consumption",
+      "needs_translation": true
+    },
+    "RxBatt": {
+      "english": "Rx Battery",
+      "translation": "Rx Battery",
+      "needs_translation": true
+    },
+    "VFR900M": {
+      "english": "VFR 900MHz",
+      "translation": "VFR 900MHz",
+      "needs_translation": true
+    },
+    "Power900M": {
+      "english": "Power 900MHz",
+      "translation": "Power 900MHz",
+      "needs_translation": true
+    },
+    "RSSI2.4G": {
+      "english": "RSSI 2.4GHz",
+      "translation": "RSSI 2.4GHz",
+      "needs_translation": true
+    },
+    "ADC2.4G": {
+      "english": "ADC 2.4GHz",
+      "translation": "ADC 2.4GHz",
+      "needs_translation": true
+    },
+    "VFR2.4G": {
+      "english": "VFR 2.4GHz",
+      "translation": "VFR 2.4GHz",
+      "needs_translation": true
+    },
+    "RxVFR": {
+      "english": "Rx VFR",
+      "translation": "Rx VFR",
+      "needs_translation": true
     }
   }
 }
