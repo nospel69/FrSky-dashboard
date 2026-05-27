@@ -146,6 +146,11 @@ local function parseSwitchSpec(spec)
         return nil
     end
 
+    -- RPM is a special value that indicates RPM-based detection
+    if spec == "RPM" then
+        return nil
+    end
+
     local category, member, options = spec:match("([^:]+):([^:]+):([^:]+)")
     if not category or not member then
         return nil

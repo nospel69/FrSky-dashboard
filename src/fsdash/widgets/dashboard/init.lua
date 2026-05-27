@@ -5,6 +5,6 @@
 
 local dashx = require("FSDash")
 
-local init = {script = "dashboard.lua", varname = "dashboard", name = "DashX", key = "dshxdsh"}
+local init = {script = "dashboard.lua", varname = "dashboard", name = "FSDash", key = "fsdsh"}
 
 return init

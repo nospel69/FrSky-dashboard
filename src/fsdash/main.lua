@@ -213,8 +213,8 @@ end
 
 local function registerWidget()
     system.registerWidget({
-        key = "FS-Dash Dashboard",
-        name = "FSDashboard",
+        key = "fsdsh",
+        name = "FSDash",
         create = function(...)
             return callWidget("create", ...)
         end,

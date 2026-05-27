@@ -23,7 +23,7 @@ local modelPreferenceDefaults = {
     },
     model = {
         armswitch = false,
-        inflightswitch = false,
+        inflightswitch = "RPM",
         inflightswitch_delay = 10,
         rateswitch = false
     },

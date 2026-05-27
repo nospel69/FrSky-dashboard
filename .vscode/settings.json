@@ -1,4 +1,11 @@
 {
     "ethos.firmware": "X20S_FCC",
-    "ethos.root": "simulator/${config:ethos.firmware}"
+    "ethos.root": "simulator/${config:ethos.firmware}",
+    "python-envs.pythonProjects": [
+        {
+            "path": ".",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        }
+    ]
 }

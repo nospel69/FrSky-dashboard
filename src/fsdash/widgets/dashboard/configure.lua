@@ -225,11 +225,31 @@ function configui.configure(widget)
         widget.armswitch = encodeSwitchSource(newValue)
     end)
 
+    local inflightModeLine = addLine(triggersPanel, "Inflight Detection")
+    local inflightModeChoice = form.addChoiceField(inflightModeLine, nil, {"RPM-based", "Switch-based"}, function()
+        if widget.inflightswitch == "RPM" or widget.inflightswitch == false then
+            return 0  -- RPM-based
+        else
+            return 1  -- Switch-based
+        end
+    end, function(newValue)
+        if newValue == 0 then
+            widget.inflightswitch = "RPM"
+        else
+            widget.inflightswitch = false  -- Will be set when switch is selected
+        end
+    end)
+
     local inflightLine = addLine(triggersPanel, "Inflight Switch")
     form.addSwitchField(inflightLine, nil, function()
+        if widget.inflightswitch == "RPM" or widget.inflightswitch == false then
+            return nil  -- No switch configured
+        end
         return decodeSwitchSpec(widget.inflightswitch)
     end, function(newValue)
-        widget.inflightswitch = encodeSwitchSource(newValue)
+        if newValue then
+            widget.inflightswitch = encodeSwitchSource(newValue)
+        end
     end)
 
     local delayLine = addLine(triggersPanel, "Inflight Switch Delay")
