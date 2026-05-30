@@ -773,11 +773,58 @@ def run_steps(steps, out_dir, lang="en"):
         run_step_script(step, out_dir, lang=lang)
 
 
+def apply_build_loglevel(dest_root, preferences_name, loglevel):
+    if not loglevel:
+        return
 
-def copy_files(src_override, fileext, targets, lang="en", steps=None):
+    loglevel = str(loglevel).strip().lower()
+    if loglevel not in ("off", "error", "warn", "info", "debug"):
+        print(f"[LOG] Invalid loglevel '{loglevel}', expected off|error|warn|info|debug. Skipping.")
+        return
+
+    prefs_dir = os.path.join(dest_root, preferences_name)
+    prefs_file = os.path.join(prefs_dir, "preferences.ini")
+    os.makedirs(prefs_dir, exist_ok=True)
+
+    ini_data = {}
+    section = None
+    if os.path.isfile(prefs_file):
+        try:
+            with open(prefs_file, "r", encoding="utf-8", errors="replace") as f:
+                for raw in f:
+                    line = raw.strip()
+                    if not line or line.startswith(";") or line.startswith("#"):
+                        continue
+                    if line.startswith("[") and line.endswith("]"):
+                        section = line[1:-1].strip()
+                        ini_data.setdefault(section, {})
+                        continue
+                    if "=" in line and section:
+                        key, value = line.split("=", 1)
+                        ini_data.setdefault(section, {})[key.strip()] = value.strip()
+        except Exception as e:
+            print(f"[LOG] Failed reading preferences file '{prefs_file}': {e}")
+
+    ini_data.setdefault("developer", {})["loglevel"] = loglevel
+
+    try:
+        with open(prefs_file, "w", encoding="utf-8", newline="\n") as f:
+            for sec in sorted(ini_data.keys()):
+                f.write(f"[{sec}]\n")
+                for key in sorted(ini_data[sec].keys()):
+                    f.write(f"{key}={ini_data[sec][key]}\n")
+                f.write("\n")
+        print(f"[LOG] Set build loglevel='{loglevel}' in {prefs_file}")
+    except Exception as e:
+        print(f"[LOG] Failed writing preferences file '{prefs_file}': {e}")
+
+
+
+def copy_files(src_override, fileext, targets, lang="en", steps=None, loglevel=None):
     global pbar
     git_src = src_override or config['git_src']
     tgt = config['tgt_name']
+    preferences_name = config.get('preferences_name', f"{tgt}.user")
     print(f"Copy mode: {fileext or 'all'}")
 
     for i, t in enumerate(targets, 1):
@@ -810,6 +857,7 @@ def copy_files(src_override, fileext, targets, lang="en", steps=None):
                         shutil.copy(os.path.join(r,f), out_dir)
 
             run_steps(steps, out_dir, lang)
+            apply_build_loglevel(dest, preferences_name, loglevel)
 
         elif fileext == 'fast':
             scr = os.path.join(git_src, 'src', tgt)
@@ -885,6 +933,7 @@ def copy_files(src_override, fileext, targets, lang="en", steps=None):
                 bar_update.close()
 
             run_steps(steps, out_dir, lang)
+            apply_build_loglevel(dest, preferences_name, loglevel)
 
             if not copied:
                 print("Fast deploy: nothing to update.")
@@ -893,6 +942,7 @@ def copy_files(src_override, fileext, targets, lang="en", steps=None):
             srcall = os.path.join(git_src, 'src', tgt)
             safe_full_copy(srcall, out_dir)
             run_steps(steps, out_dir, lang)
+            apply_build_loglevel(dest, preferences_name, loglevel)
             flush_fs()
             time.sleep(2)
 
@@ -978,7 +1028,10 @@ def main():
     p.add_argument('--step', dest='steps', action='append',
                    help='Additional deploy steps to run (e.g. i18n, soundpack). '
                         'Can be given multiple times.'
-    )    
+    )
+    p.add_argument('--loglevel', choices=['off', 'error', 'warn', 'info', 'debug'],
+                   default=os.environ.get("DASHX_LOGLEVEL"),
+                   help='Build/deploy log level to write into preferences.ini (off|error|warn|info|debug).')
 
     args = p.parse_args()
     DEPLOY_TO_RADIO = args.radio
@@ -1095,7 +1148,7 @@ def main():
         targets = [{'name': 'Simulator', 'dest': fixed_dest, 'simulator': None}]
 
     # -------------------------------------------------------------------------
-    copy_files(args.src, args.fileext, targets, lang=args.lang, steps=args.steps)
+    copy_files(args.src, args.fileext, targets, lang=args.lang, steps=args.steps, loglevel=args.loglevel)
 
     if args.launch and not args.radio:
         launch_sims(targets)

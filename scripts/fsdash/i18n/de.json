@@ -5279,6 +5279,11 @@
         "needs_translation": "false",
         "translation": "ESC Temperatur"
       },
+      "flightmode": {
+        "english": "Flight Mode",
+        "needs_translation": true,
+        "translation": "Flight Mode"
+      },
       "fuel": {
         "english": "Fuel",
         "needs_translation": "false",
@@ -5288,6 +5293,11 @@
         "english": "Governor State",
         "needs_translation": "false",
         "translation": "Governor Status"
+      },
+      "gps_sats": {
+        "english": "GPS Sats",
+        "needs_translation": true,
+        "translation": "GPS Sats"
       },
       "groundspeed": {
         "english": "Ground Speed",
@@ -5303,6 +5313,11 @@
         "english": "Idle Up",
         "needs_translation": true,
         "translation": "Idle Up"
+      },
+      "link": {
+        "english": "Link Quality",
+        "needs_translation": true,
+        "translation": "Link Quality"
       },
       "mcu_temp": {
         "english": "MCU Temperature",
