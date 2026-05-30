@@ -6,6 +6,14 @@
 local dashx = require("FSDash")
 
 local enableWakeup = false
+local INFLIGHT_MODE_CHOICES = {
+    {"RPM-based", 0},
+    {"Switch-based", 1}
+}
+
+local function isInflightRpmMode(spec)
+    return spec == "RPM"
+end
 
 local function openPage(pageIdx, title, script)
     enableWakeup = true
@@ -44,10 +52,25 @@ local function openPage(pageIdx, title, script)
     formFieldCount = formFieldCount + 1
     formLineCnt = formLineCnt + 1
     dashx.app.formLines[formLineCnt] = form.addLine("Inflight Detection")
-    dashx.app.formFields[formFieldCount] = form.addChoiceField(dashx.app.formLines[formLineCnt], nil, {"RPM-based", "Switch-based"}, function()
+    local inflightSwitchField
+    local function clearInflightSwitchDisplay()
+        if inflightSwitchField and inflightSwitchField.value then
+            pcall(function()
+                inflightSwitchField:value(nil)
+            end)
+        end
+    end
+
+    local function updateInflightSwitchEnabled()
+        if inflightSwitchField and inflightSwitchField.enable then
+            inflightSwitchField:enable(not isInflightRpmMode(dashx.session.modelPreferences.model.inflightswitch))
+        end
+    end
+
+    dashx.app.formFields[formFieldCount] = form.addChoiceField(dashx.app.formLines[formLineCnt], nil, INFLIGHT_MODE_CHOICES, function()
         if dashx.session.modelPreferences and dashx.session.modelPreferences.model.inflightswitch then
             local spec = dashx.session.modelPreferences.model.inflightswitch
-            if spec == "RPM" or spec == false then
+            if isInflightRpmMode(spec) then
                 return 0  -- RPM-based
             else
                 return 1  -- Switch-based
@@ -57,10 +80,16 @@ local function openPage(pageIdx, title, script)
     end, function(newValue)
         if dashx.session.modelPreferences then
             if newValue == 0 then
+                -- Clear any selected switch and force RPM mode.
                 dashx.session.modelPreferences.model.inflightswitch = "RPM"
+                clearInflightSwitchDisplay()
             else
+                -- Switch mode starts with no selected switch, shown as "---".
                 dashx.session.modelPreferences.model.inflightswitch = false
+                clearInflightSwitchDisplay()
             end
+            updateInflightSwitchEnabled()
+            dashx.app.ui.openPage(pageIdx, title, script)
         end
     end)
 
@@ -70,7 +99,7 @@ local function openPage(pageIdx, title, script)
     dashx.app.formFields[formFieldCount] = form.addSwitchField(dashx.app.formLines[formLineCnt], nil, function()
         if dashx.session.modelPreferences and dashx.session.modelPreferences.model.inflightswitch then
             local spec = dashx.session.modelPreferences.model.inflightswitch
-            if spec == "RPM" or spec == false then
+            if isInflightRpmMode(spec) or spec == false then
                 return nil  -- No switch when using RPM-based
             end
             local category, member, options = spec:match("([^:]+):([^:]+):([^:]+)")
@@ -84,9 +113,13 @@ local function openPage(pageIdx, title, script)
                 local category = newValue:category()
                 local options = newValue:options()
                 dashx.session.modelPreferences.model.inflightswitch = category .. ":" .. member .. ":" .. options
+            else
+                dashx.session.modelPreferences.model.inflightswitch = false
             end
         end
     end)
+    inflightSwitchField = dashx.app.formFields[formFieldCount]
+    updateInflightSwitchEnabled()
 
     formFieldCount = formFieldCount + 1
     formLineCnt = formLineCnt + 1

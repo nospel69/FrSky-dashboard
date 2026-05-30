@@ -6,6 +6,14 @@
 local dashx = require("FSDash")
 
 local configui = {}
+local INFLIGHT_MODE_CHOICES = {
+    {"RPM-based", 0},
+    {"Switch-based", 1}
+}
+
+local function isInflightRpmMode(spec)
+    return spec == "RPM"
+end
 
 local function clamp(value, minimum, maximum)
     if value < minimum then
@@ -107,7 +115,9 @@ local function encodeSwitchSource(source)
 end
 
 function configui.read(widget)
-    ensureWidgetDefaults(widget)
+    if not widget or not widget._modelKey then
+        ensureWidgetDefaults(widget)
+    end
     return true
 end
 
@@ -116,7 +126,9 @@ function configui.write(widget)
 end
 
 function configui.configure(widget)
-    ensureWidgetDefaults(widget)
+    if not widget or not widget._modelKey then
+        ensureWidgetDefaults(widget)
+    end
 
     local themeLine = addLine(nil, "Theme for this model")
     local themeList = dashx.widgets.dashboard.listThemes()
@@ -235,31 +247,64 @@ function configui.configure(widget)
     end)
 
     local inflightModeLine = addLine(triggersPanel, "Inflight Detection")
-    local inflightModeChoice = form.addChoiceField(inflightModeLine, nil, {"RPM-based", "Switch-based"}, function()
-        if widget.inflightswitch == "RPM" or widget.inflightswitch == false then
+    local inflightSwitchField
+    local function refreshConfigureForm()
+        if form and form.clear then
+            form.clear()
+            configui.configure(widget)
+        elseif form and form.invalidate then
+            form.invalidate()
+        end
+    end
+
+    local function clearInflightSwitchDisplay()
+        if inflightSwitchField and inflightSwitchField.value then
+            pcall(function()
+                inflightSwitchField:value(nil)
+            end)
+        end
+    end
+
+    local function updateInflightSwitchEnabled()
+        if inflightSwitchField and inflightSwitchField.enable then
+            inflightSwitchField:enable(not isInflightRpmMode(widget.inflightswitch))
+        end
+    end
+
+    form.addChoiceField(inflightModeLine, nil, INFLIGHT_MODE_CHOICES, function()
+        if isInflightRpmMode(widget.inflightswitch) then
             return 0  -- RPM-based
         else
             return 1  -- Switch-based
         end
     end, function(newValue)
         if newValue == 0 then
+            -- Clear any selected switch and force RPM mode.
             widget.inflightswitch = "RPM"
+            clearInflightSwitchDisplay()
         else
-            widget.inflightswitch = false  -- Will be set when switch is selected
+            -- Switch mode starts with no selected switch, shown as "---".
+            widget.inflightswitch = false
+            clearInflightSwitchDisplay()
         end
+        updateInflightSwitchEnabled()
+        refreshConfigureForm()
     end)
 
     local inflightLine = addLine(triggersPanel, "Inflight Switch")
-    form.addSwitchField(inflightLine, nil, function()
-        if widget.inflightswitch == "RPM" or widget.inflightswitch == false then
+    inflightSwitchField = form.addSwitchField(inflightLine, nil, function()
+        if isInflightRpmMode(widget.inflightswitch) or widget.inflightswitch == false then
             return nil  -- No switch configured
         end
         return decodeSwitchSpec(widget.inflightswitch)
     end, function(newValue)
         if newValue then
             widget.inflightswitch = encodeSwitchSource(newValue)
+        else
+            widget.inflightswitch = false
         end
     end)
+    updateInflightSwitchEnabled()
 
     local delayLine = addLine(triggersPanel, "Inflight Switch Delay")
     local delayField = form.addNumberField(delayLine, nil, 0, 120, function()
