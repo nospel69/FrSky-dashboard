@@ -36,25 +36,34 @@ local function getModelThemeValue(widget)
     return value
 end
 
+local function normalizeThemePath(value)
+    if type(value) ~= "string" then
+        return ""
+    end
+    return value:gsub("/+$", "")
+end
+
 local function buildModelThemeChoices(themeList)
     local choices = {}
     local byValue = {}
+    local firstIdx = nil
 
     for _, theme in ipairs(themeList or {}) do
-        local value = theme.source .. "/" .. theme.folder
-        if value == "system/default" or value == "system/@rt-rc" then
-            local label = value == "system/default" and "Default" or "RT-RC"
-            choices[#choices + 1] = {label, theme.idx}
-            byValue[value] = theme.idx
+        local value = normalizeThemePath(theme.source .. "/" .. theme.folder)
+        local label = theme.name or theme.folder or value
+        choices[#choices + 1] = {label, theme.idx}
+        byValue[value] = theme.idx
+        if firstIdx == nil then
+            firstIdx = theme.idx
         end
     end
 
-    return choices, byValue
+    return choices, byValue, firstIdx
 end
 
-local function encodeModelThemeChoice(widget, byValue)
-    local storedValue = getModelThemeValue(widget)
-    return byValue[storedValue] or byValue["system/default"]
+local function encodeModelThemeChoice(widget, byValue, firstIdx)
+    local storedValue = normalizeThemePath(getModelThemeValue(widget))
+    return byValue[storedValue] or byValue["system/default"] or firstIdx
 end
 
 local function applyModelThemeChoice(widget, themeList, selectedValue)
@@ -62,7 +71,7 @@ local function applyModelThemeChoice(widget, themeList, selectedValue)
 
     for _, theme in ipairs(themeList or {}) do
         if theme.idx == selectedValue then
-            value = theme.source .. "/" .. theme.folder
+            value = normalizeThemePath(theme.source .. "/" .. theme.folder)
             break
         end
     end
@@ -111,9 +120,9 @@ function configui.configure(widget)
 
     local themeLine = addLine(nil, "Theme for this model")
     local themeList = dashx.widgets.dashboard.listThemes()
-    local themeChoices, themeValueMap = buildModelThemeChoices(themeList)
+    local themeChoices, themeValueMap, firstThemeIdx = buildModelThemeChoices(themeList)
     form.addChoiceField(themeLine, nil, themeChoices, function()
-        return encodeModelThemeChoice(widget, themeValueMap)
+        return encodeModelThemeChoice(widget, themeValueMap, firstThemeIdx)
     end, function(value)
         applyModelThemeChoice(widget, themeList, value)
     end)

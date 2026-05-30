@@ -484,8 +484,9 @@ function dashboard.listThemes()
         end
 
         for _, folder in ipairs(folders) do
-            if folder ~= "." and folder ~= ".." and not folder:match("%a+$") and fsdash.utils.dir_exists(basePath, folder) then
-                local initPath = basePath .. folder .. "/init.lua"
+            local normalizedFolder = type(folder) == "string" and folder:gsub("/+$", "") or folder
+            if normalizedFolder ~= "." and normalizedFolder ~= ".." and fsdash.utils.dir_exists(basePath, normalizedFolder) then
+                local initPath = basePath .. normalizedFolder .. "/init.lua"
                 local chunk = loadfile(initPath)
                 if chunk then
                     local ok, initTable = pcall(chunk)
@@ -495,7 +496,7 @@ function dashboard.listThemes()
                             themes[count] = {
                                 name = initTable.name,
                                 configure = initTable.configure,
-                                folder = folder,
+                                folder = normalizedFolder,
                                 idx = count,
                                 source = sourceType
                             }
