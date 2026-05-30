@@ -79,10 +79,13 @@ local header_layout = {height = headeropts.height, cols = 7, rows = 1, padding =
 local function buildBoxes(W)
 
     local opts = themeOptions[getThemeOptionKey(W)] or themeOptions.ms_std
+    local isFallback = dashx.widgets.dashboard and dashx.widgets.dashboard.themeFallbackUsed and dashx.widgets.dashboard.themeFallbackUsed.preflight
+    local themeLabel = isFallback and "DEFAULT (FB)" or "DEFAULT"
 
     return {
 
-        {col = 1, row = 1, colspan = 8, rowspan = 3, type = "image", subtype = "model", bgcolor = colorMode.bgcolor},
+        --{col = 1, row = 1, colspan = 8, rowspan = 3, type = "image", subtype = "model", bgcolor = colorMode.bgcolor},
+        {col = 1, row = 1, colspan = 8, rowspan = 3, type = "text", subtype = "text", value = themeLabel, title = "THEME", titlepos = "bottom", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor},
         {col = 1, row = 4, colspan = 8, rowspan = 3, type = "time", subtype = "flight", title = "TIME", titlepos = "bottom", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor},
         {col = 1, row = 7, colspan = 4, rowspan = 2, type = "text", subtype = "telemetry", source = "rssi", nosource = "-", unit = "dB", title = "LQ", titlepos = "bottom", transform = "floor", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor},
         {col = 5, row = 7, colspan = 4, rowspan = 2, type = "time", subtype = "count", title = "FLIGHTS", titlepos = "bottom", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor}, {

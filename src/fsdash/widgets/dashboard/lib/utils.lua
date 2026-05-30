@@ -264,10 +264,8 @@ local function resolveGaugeThresholdPalette(themeState, background)
     local fillcolor = themeState.activeColor or themeState.mixerOutputColor or GAUGE_TRAFFIC_GREEN
     local fillwarncolor = GAUGE_TRAFFIC_AMBER
     local fillcritcolor = GAUGE_TRAFFIC_RED
-    background = background or themeState.secondaryBgColor or themeState.primaryBgColor or themeState.pageBgColor
-    fillcolor = ensureThemeColorContrast(fillcolor, background, 2.2)
-    fillwarncolor = ensureThemeColorContrast(fillwarncolor, background, 2.2)
-    fillcritcolor = ensureThemeColorContrast(fillcritcolor, background, 2.4)
+    -- Keep palette resolution lightweight: expensive contrast math can exceed
+    -- instruction limits on some radios during initial theme loading.
     return fillcolor, fillwarncolor, fillcritcolor
 end
 

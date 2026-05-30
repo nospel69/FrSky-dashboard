@@ -82,7 +82,8 @@ local function buildBoxes(W)
 
     return {
 
-        {col = 1, row = 1, rowspan = 7, colspan = 2, type = "time", subtype = "flight", title = "FLIGHT TIME", titlepos = "bottom", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor},
+        --{col = 1, row = 1, rowspan = 7, colspan = 2, type = "time", subtype = "flight", title = "FLIGHT TIME", titlepos = "bottom", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor},
+        {col = 1, row = 1, colspan = 2, rowspan = 7, type = "text", subtype = "text", value = "default in", title = "THEME", titlepos = "bottom", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor},
         {col = 1, row = 8, rowspan = 7, colspan = 2, type = "text", title = "LQ", subtype = "telemetry", titlepos = "bottom", source = "rssi", nosource = "-", unit = "dB", transform = "floor", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor}, {
             type = "gauge",
             subtype = "arc",

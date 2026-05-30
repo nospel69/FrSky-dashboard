@@ -447,6 +447,16 @@ local function normalizeThemeValue(value)
         return "nil"
     end
 
+    if type(value) ~= "string" then
+        return "nil"
+    end
+
+    value = value:gsub("\\", "/"):gsub("^%s+", ""):gsub("%s+$", ""):gsub("/+$", "")
+
+    if value == "" then
+        return "nil"
+    end
+
     if value == "Default" then
         return "system/default"
     end
@@ -457,6 +467,10 @@ local function normalizeThemeValue(value)
 
     if value == "system/rt-rc" then
         return "system/@rt-rc"
+    end
+
+    if not value:find("/", 1, true) then
+        return "system/" .. value
     end
 
     return value

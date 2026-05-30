@@ -7,7 +7,7 @@ local dashx = require("FSDash")
 local settings = {}
 local settings_model = {}
 
-local themeList = dashx.widgets.dashboard.listThemes()
+local themeList = {}
 local formattedThemes = {}
 local formattedThemesModel = {}
 
@@ -15,6 +15,9 @@ local enableWakeup = false
 local prevConnectedState = nil
 
 local function generateThemeList()
+    themeList = dashx.widgets.dashboard.listThemes() or {}
+    formattedThemes = {}
+    formattedThemesModel = {}
 
     settings = dashx.preferences.dashboard
 
