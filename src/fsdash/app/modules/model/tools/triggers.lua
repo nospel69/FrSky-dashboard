@@ -51,6 +51,32 @@ local function openPage(pageIdx, title, script)
 
     formFieldCount = formFieldCount + 1
     formLineCnt = formLineCnt + 1
+    dashx.app.formLines[formLineCnt] = form.addLine("Throttle Hold Switch")
+    dashx.app.formFields[formFieldCount] = form.addSwitchField(dashx.app.formLines[formLineCnt], nil, function()
+        if dashx.session.modelPreferences and dashx.session.modelPreferences.model.throttleholdswitch then
+            local spec = dashx.session.modelPreferences.model.throttleholdswitch
+            if type(spec) ~= "string" then
+                return nil
+            end
+            local category, member, options = spec:match("([^:]+):([^:]+):([^:]+)")
+            if category and member then return system.getSource({category = category, member = member, options = options}) end
+        end
+        return nil
+    end, function(newValue)
+        if dashx.session.modelPreferences then
+            if newValue then
+                local member = newValue:member()
+                local category = newValue:category()
+                local options = newValue:options()
+                dashx.session.modelPreferences.model.throttleholdswitch = category .. ":" .. member .. ":" .. options
+            else
+                dashx.session.modelPreferences.model.throttleholdswitch = false
+            end
+        end
+    end)
+
+    formFieldCount = formFieldCount + 1
+    formLineCnt = formLineCnt + 1
     dashx.app.formLines[formLineCnt] = form.addLine("Inflight Detection")
     local inflightSwitchField
     local function clearInflightSwitchDisplay()

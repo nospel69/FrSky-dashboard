@@ -22,8 +22,10 @@ local switchCache = {}
 local derivedDefinitions = {
     armed = {name = "Armed", appId = 0x5FE0, unit = UNIT_RAW, minimum = 0, maximum = 1},
     inflight = {name = "Inflight", appId = 0x5FDF, unit = UNIT_RAW, minimum = 0, maximum = 1},
+    profile = {name = "Profile", appId = 0x5FED, unit = UNIT_RAW, minimum = 1, maximum = 3},
     smartfuel = {name = "Smart Fuel", appId = 0x5FE1, unit = UNIT_PERCENT, minimum = 0, maximum = 100},
-    smartconsumption = {name = "Smart Consumption", appId = 0x5FDE, unit = UNIT_MILLIAMPERE_HOUR, minimum = 0, maximum = 1000000000}
+    smartconsumption = {name = "Smart Consumption", appId = 0x5FDE, unit = UNIT_MILLIAMPERE_HOUR, minimum = 0, maximum = 1000000000},
+    flightmode = {name = "Flight Mode", appId = 0x5FEC, unit = UNIT_RAW, minimum = 0, maximum = 3}
 }
 
 local function sourceExists(source)
@@ -207,6 +209,38 @@ local function readSwitchState(key, spec)
     return nil
 end
 
+local function readSwitchValue(key, spec)
+    local source = getSwitchSource(key, spec)
+    if not source or type(source.value) ~= "function" then
+        return nil
+    end
+
+    local ok, value = pcall(source.value, source)
+    if not ok then
+        return nil
+    end
+
+    if type(value) == "number" then
+        return value
+    end
+
+    return nil
+end
+
+local function toThreePositionValue(value)
+    if value == nil then
+        return nil
+    end
+
+    if value < -500 then
+        return 1
+    elseif value > 500 then
+        return 3
+    end
+
+    return 2
+end
+
 local function rpmBinaryValue()
     local telemetryModule = telemetry()
     local rpm = telemetryModule and telemetryModule.getSensor("rpm") or 0
@@ -229,6 +263,31 @@ local function deriveInflightValue()
         return state and 0 or 1
     end
     return rpmBinaryValue()
+end
+
+local function deriveProfileValue()
+    local rx = dashx.session and dashx.session.rx and dashx.session.rx.values or nil
+    local profileValue = toThreePositionValue(rx and rx.mode or nil)
+    if profileValue ~= nil then
+        return profileValue
+    end
+
+    return 1
+end
+
+local function deriveFlightModeValue(profileValue)
+    local modelPrefs = dashx.session.modelPreferences and dashx.session.modelPreferences.model or {}
+    local throttleHoldState = readSwitchState("throttlehold", modelPrefs.throttleholdswitch)
+
+    if throttleHoldState == true then
+        return 0
+    end
+
+    if type(profileValue) == "number" then
+        return profileValue
+    end
+
+    return 0
 end
 
 local function shouldUseVoltageFuel()
@@ -266,12 +325,16 @@ end
 local function updateDerivedSensors(rootSource)
     local armed = deriveArmedValue()
     local inflight = deriveInflightValue()
+    local profile = deriveProfileValue()
+    local flightmode = deriveFlightModeValue(profile)
     local fuel = calculateFuel()
     local consumption = calculateConsumption(fuel)
     dashx.session.isArmed = armed == 0
 
     setSensorValue(derivedDefinitions.armed, armed, rootSource)
     setSensorValue(derivedDefinitions.inflight, inflight, rootSource)
+    setSensorValue(derivedDefinitions.profile, profile, rootSource)
+    setSensorValue(derivedDefinitions.flightmode, flightmode, rootSource)
     setSensorValue(derivedDefinitions.smartfuel, fuel, rootSource)
     setSensorValue(derivedDefinitions.smartconsumption, consumption, rootSource)
 end

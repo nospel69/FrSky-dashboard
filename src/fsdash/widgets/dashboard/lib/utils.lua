@@ -14,9 +14,18 @@ local COLOR_BLACK = lcd.RGB(0, 0, 0)
 local GAUGE_TRAFFIC_GREEN = lcd.RGB(0, 188, 4)
 local GAUGE_TRAFFIC_AMBER = lcd.RGB(255, 170, 0)
 local GAUGE_TRAFFIC_RED = lcd.RGB(224, 64, 64)
-
+local DASHBOARD_RESOLUTION_TOLERANCE = 12
+local DASHBOARD_SUPPORTED_RESOLUTIONS = {
+    {784, 294}, {784, 316}, {800, 458}, {800, 480},
+    {472, 191}, {472, 210}, {480, 301}, {480, 320},
+    {630, 236}, {630, 258}, {640, 338}, {640, 360}
+}
+local DASHBOARD_THEME_WIDTHS = {800, 784, 640, 630, 480, 472}
 local THEME_SIGNATURE_MOD = 2147483647
+local ETHOS_THEME_MIN_VERSION = {26, 1, 0}
 local THEME_STATE_KEYS = {
+    {key = "defaultColor", constant = "THEME_DEFAULT_COLOR"},
+    {key = "defaultBgColor", constant = "THEME_DEFAULT_BGCOLOR"},
     {key = "focusBgColor", constant = "THEME_FOCUS_BGCOLOR"},
     {key = "focusColor", constant = "THEME_FOCUS_COLOR"},
     {key = "primaryColor", constant = "THEME_PRIMARY_COLOR"},
@@ -26,16 +35,22 @@ local THEME_STATE_KEYS = {
     {key = "highlightColor", constant = "THEME_HIGHLIGHT_COLOR"},
     {key = "highlightInvertColor", constant = "THEME_HIGHLIGHT_INVERT_COLOR"},
     {key = "disableColor", constant = "THEME_DISABLE_COLOR"},
+    {key = "safeColor", constant = "THEME_SAFE_COLOR"},
     {key = "warningColor", constant = "THEME_WARNING_COLOR"},
+    {key = "errorColor", constant = "THEME_ERROR_COLOR"},
     {key = "activeColor", constant = "THEME_ACTIVE_COLOR"},
     {key = "inactiveColor", constant = "THEME_INACTIVE_COLOR"},
     {key = "buttonBorderActiveColor", constant = "THEME_BUTTON_BORDER_ACTIVE_COLOR"},
     {key = "buttonBorderColor", constant = "THEME_BUTTON_BORDER_COLOR"},
     {key = "mixerOutputColor", constant = "THEME_MIXER_OUTPUT_COLOR"},
-    {key = "pageBgColor", constant = "THEME_PAGE_BGCOLOR"}
+    {key = "safeContrastingColor", constant = "THEME_SAFE_CONTRASTING_COLOR"},
+    {key = "pageBgColor", constant = "THEME_PAGE_BGCOLOR"},
+    {key = "topLcdBgColor", constant = "THEME_TOPLCD_BGCOLOR"}
 }
 local LEGACY_THEME_STATE = {
     dark = {
+        defaultColor = lcd.RGB(255, 255, 255),
+        defaultBgColor = lcd.RGB(35, 35, 35),
         primaryColor = lcd.RGB(255, 255, 255),
         primaryBgColor = lcd.RGB(0, 0, 0),
         secondaryColor = lcd.RGB(185, 185, 185),
@@ -45,15 +60,21 @@ local LEGACY_THEME_STATE = {
         highlightColor = lcd.RGB(255, 255, 255),
         highlightInvertColor = lcd.RGB(0, 0, 0),
         disableColor = lcd.RGB(90, 90, 90),
+        safeColor = lcd.RGB(0, 188, 4),
         warningColor = lcd.RGB(255, 0, 0),
+        errorColor = lcd.RGB(255, 0, 0),
         activeColor = lcd.RGB(0, 188, 4),
         inactiveColor = lcd.RGB(255, 0, 0),
         buttonBorderActiveColor = lcd.RGB(255, 255, 255),
         buttonBorderColor = lcd.RGB(90, 90, 90),
         mixerOutputColor = lcd.RGB(0, 188, 4),
-        pageBgColor = lcd.RGB(16, 16, 16)
+        safeContrastingColor = lcd.RGB(0, 0, 0),
+        pageBgColor = lcd.RGB(16, 16, 16),
+        topLcdBgColor = lcd.RGB(35, 35, 35)
     },
     light = {
+        defaultColor = lcd.RGB(0, 0, 0),
+        defaultBgColor = lcd.RGB(230, 230, 230),
         primaryColor = lcd.RGB(0, 0, 0),
         primaryBgColor = lcd.RGB(255, 255, 255),
         secondaryColor = lcd.RGB(90, 90, 90),
@@ -63,13 +84,17 @@ local LEGACY_THEME_STATE = {
         highlightColor = lcd.RGB(90, 90, 90),
         highlightInvertColor = lcd.RGB(255, 255, 255),
         disableColor = lcd.RGB(185, 185, 185),
+        safeColor = lcd.RGB(0, 188, 4),
         warningColor = lcd.RGB(255, 0, 0),
+        errorColor = lcd.RGB(255, 0, 0),
         activeColor = lcd.RGB(0, 188, 4),
         inactiveColor = lcd.RGB(255, 0, 0),
         buttonBorderActiveColor = lcd.RGB(90, 90, 90),
         buttonBorderColor = lcd.RGB(185, 185, 185),
         mixerOutputColor = lcd.RGB(0, 188, 4),
-        pageBgColor = lcd.RGB(209, 208, 208)
+        safeContrastingColor = lcd.RGB(0, 0, 0),
+        pageBgColor = lcd.RGB(209, 208, 208),
+        topLcdBgColor = lcd.RGB(230, 230, 230)
     }
 }
 local LEGACY_CHROME_THEME = {
@@ -132,6 +157,9 @@ local function isLegacyDarkMode()
     return lcd.darkMode and lcd.darkMode() or false
 end
 
+local _supportsThemeChecked = false
+local _supportsTheme = false
+
 local function supportsSystemThemeColors()
     return dashx
         and dashx.utils
@@ -164,6 +192,8 @@ local function copyThemeMap(target, source)
     end
 end
 
+local ensureThemeColorContrast
+
 local function resolveDashboardSurfaceBg(themeState)
     local pageBg = themeState and themeState.pageBgColor or nil
     local surfaceBg = themeState and themeState.secondaryBgColor or nil
@@ -171,6 +201,18 @@ local function resolveDashboardSurfaceBg(themeState)
     if surfaceBg == pageBg then surfaceBg = themeState and themeState.primaryBgColor or nil end
     if surfaceBg == nil then surfaceBg = pageBg or (themeState and themeState.primaryBgColor or nil) end
     return surfaceBg
+end
+
+local function resolveDashboardHeaderBg(themeState, surfaceBg)
+    local headerBg = themeState and (themeState.topLcdBgColor or themeState.defaultBgColor or themeState.focusBgColor or themeState.secondaryBgColor) or nil
+    if headerBg == nil then return surfaceBg end
+    return headerBg
+end
+
+local function resolveDashboardHeaderTextColor(themeState, headerBg)
+    local headerText = themeState and (themeState.defaultColor or themeState.primaryColor or themeState.focusColor) or nil
+    if headerText == nil then return nil end
+    return ensureThemeColorContrast(headerText, headerBg, 3.0)
 end
 
 local function resolveToolbarDividerColor(themeState, background)
@@ -258,6 +300,52 @@ local function ensureThemeColorContrast(color, background, minRatio)
     end
 
     return bestColor
+end
+
+local function resolveDashboardPanelColors(themeState)
+    local primary = themeState and themeState.primaryBgColor
+    local secondary = themeState and themeState.secondaryBgColor
+    if primary == nil then return secondary, secondary end
+    if secondary == nil then return primary, primary end
+
+    local primaryLuminance = relativeLuminance(primary)
+    local secondaryLuminance = relativeLuminance(secondary)
+    if primaryLuminance ~= nil and secondaryLuminance ~= nil and secondaryLuminance < primaryLuminance then
+        return secondary, primary
+    end
+    return primary, secondary
+end
+
+local function resolveGaugeTrackBg(themeState, background)
+    if themeState == nil then return ensureThemeColorContrast(background, background, 2.0) end
+
+    local candidates = {
+        themeState.secondaryBgColor,
+        themeState.buttonBorderColor,
+        themeState.focusBgColor,
+        themeState.defaultBgColor,
+        themeState.primaryBgColor,
+        themeState.secondaryColor
+    }
+    local bestColor = nil
+    local bestRatio = nil
+
+    for i = 1, #candidates do
+        local candidate = candidates[i]
+        if candidate ~= nil and candidate ~= background then
+            local ratio = contrastRatio(candidate, background)
+            if ratio ~= nil then
+                if ratio >= 2.0 then return candidate end
+                if bestRatio == nil or ratio > bestRatio then
+                    bestColor = candidate
+                    bestRatio = ratio
+                end
+            end
+        end
+    end
+
+    if bestColor ~= nil then return ensureThemeColorContrast(bestColor, background, 2.0) end
+    return ensureThemeColorContrast(background, background, 2.0)
 end
 
 local function resolveGaugeThresholdPalette(themeState, background)
@@ -404,16 +492,63 @@ function utils.getTxBatteryVoltageRange()
     return 7.2, 8.4
 end
 
+local function resolveDashboardSize(W, H)
+    local version = system.getVersion and system.getVersion() or {}
+    W = tonumber(W) or tonumber(version.lcdWidth) or 800
+    H = tonumber(H) or tonumber(version.lcdHeight) or 480
+    return W, H
+end
+
+local function findClosestDashboardResolution(W, H, supportedResolutions)
+    W, H = resolveDashboardSize(W, H)
+    local bestRes, bestDistance
+    local resolutions = supportedResolutions or DASHBOARD_SUPPORTED_RESOLUTIONS
+
+    for _, res in ipairs(resolutions) do
+        local distance = math.abs(W - res[1]) + math.abs(H - res[2])
+        if bestDistance == nil or distance < bestDistance then
+            bestRes = res
+            bestDistance = distance
+        end
+    end
+
+    return bestRes, bestDistance
+end
+
+local function getClosestDashboardWidth(W)
+    W = select(1, resolveDashboardSize(W, nil))
+    local bestWidth, bestDistance
+
+    for i = 1, #DASHBOARD_THEME_WIDTHS do
+        local width = DASHBOARD_THEME_WIDTHS[i]
+        local distance = math.abs(W - width)
+        if bestDistance == nil or distance < bestDistance then
+            bestWidth = width
+            bestDistance = distance
+        end
+    end
+
+    return bestWidth
+end
+
+function utils.matchSupportedResolution(W, H, supportedResolutions, maxDistance)
+    W, H = resolveDashboardSize(W, H)
+    local bestRes, bestDistance = findClosestDashboardResolution(W, H, supportedResolutions)
+    local tolerance = maxDistance or DASHBOARD_RESOLUTION_TOLERANCE
+
+    if bestRes and bestDistance ~= nil and bestDistance <= tolerance then
+        return bestRes[1], bestRes[2], bestDistance
+    end
+
+    return nil
+end
+
 function utils.isFullScreen(w, h)
+    w, h = resolveDashboardSize(w, h)
+    local matchedW = utils.matchSupportedResolution(w, h)
 
-    if (w == 800 and (h == 458 or h == 480)) then return true end
-    if (w == 784 and (h == 294 or h == 316)) then return false end
-
-    if (w == 480 and (h == 301 or h == 320)) then return true end
-    if (w == 472 and (h == 191 or h == 210)) then return false end
-
-    if (w == 640 and (h == 338 or h == 360)) then return true end
-    if (w == 630 and (h == 236 or h == 258)) then return false end
+    if matchedW == 800 or matchedW == 480 or matchedW == 640 then return true end
+    if matchedW == 784 or matchedW == 472 or matchedW == 630 then return false end
 
     return nil
 end
@@ -423,9 +558,7 @@ function utils.isModelPrefsReady() return dashx and dashx.session and dashx.sess
 function utils.resetBoxCache(box) if box._cache then for k in pairs(box._cache) do box._cache[k] = nil end end end
 
 function utils.supportedResolution(W, H, supportedResolutions)
-
-    for _, res in ipairs(supportedResolutions) do if W == res[1] and H == res[2] then return true end end
-    return false
+    return utils.matchSupportedResolution(W, H, supportedResolutions) ~= nil
 end
 
 function utils.getThemeSignature()
@@ -603,8 +736,10 @@ end
 
 function utils.getHeaderOptions()
     local W, H = lcd.getWindowSize()
+    W, H = resolveDashboardSize(W, H)
+    local matchedW = getClosestDashboardWidth(W)
 
-    if W == 800 or W == 784 then
+    if matchedW == 800 or matchedW == 784 then
         return {
             height = 36,
             font = "FONT_L",
@@ -624,7 +759,7 @@ function utils.getHeaderOptions()
             valuepaddingbottom = 20
         }
 
-    elseif W == 480 or W == 472 then
+    elseif matchedW == 480 or matchedW == 472 then
         return {
             height = 30,
             font = "FONT_L",
@@ -643,7 +778,7 @@ function utils.getHeaderOptions()
             valuepaddingbottom = 20
         }
 
-    elseif W == 640 or W == 630 then
+    elseif matchedW == 640 or matchedW == 630 then
         return {
             height = 30,
             font = "FONT_L",

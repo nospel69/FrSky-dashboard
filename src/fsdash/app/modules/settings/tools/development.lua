@@ -58,14 +58,18 @@ local function openPage(pageIdx, title, script)
     formFieldCount = formFieldCount + 1
     dashx.session.formLineCnt = dashx.session.formLineCnt + 1
     dashx.app.formLines[dashx.session.formLineCnt] = logpanel:addLine("Log level")
-    dashx.app.formFields[formFieldCount] = form.addChoiceField(dashx.app.formLines[dashx.session.formLineCnt], nil, {{"OFF", 0}, {"INFO", 1}, {"DEBUG", 2}}, function()
+    dashx.app.formFields[formFieldCount] = form.addChoiceField(dashx.app.formLines[dashx.session.formLineCnt], nil, {{"OFF", 0}, {"ERROR", 1}, {"WARN", 2}, {"INFO", 3}, {"DEBUG", 4}}, function()
         if dashx.preferences and dashx.preferences.developer then
             if settings['loglevel'] == "off" then
                 return 0
-            elseif settings['loglevel'] == "info" then
+            elseif settings['loglevel'] == "error" then
                 return 1
-            else
+            elseif settings['loglevel'] == "warn" or settings['loglevel'] == "warning" then
                 return 2
+            elseif settings['loglevel'] == "info" then
+                return 3
+            else
+                return 4
             end
         end
     end, function(newValue)
@@ -74,6 +78,10 @@ local function openPage(pageIdx, title, script)
             if newValue == 0 then
                 value = "off"
             elseif newValue == 1 then
+                value = "error"
+            elseif newValue == 2 then
+                value = "warn"
+            elseif newValue == 3 then
                 value = "info"
             else
                 value = "debug"

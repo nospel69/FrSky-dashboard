@@ -246,6 +246,13 @@ function configui.configure(widget)
         widget.armswitch = encodeSwitchSource(newValue)
     end)
 
+    local throttleHoldLine = addLine(triggersPanel, "Throttle Hold Switch")
+    form.addSwitchField(throttleHoldLine, nil, function()
+        return decodeSwitchSpec(widget.throttleholdswitch)
+    end, function(newValue)
+        widget.throttleholdswitch = encodeSwitchSource(newValue)
+    end)
+
     local inflightModeLine = addLine(triggersPanel, "Inflight Detection")
     local inflightSwitchField
     local function refreshConfigureForm()

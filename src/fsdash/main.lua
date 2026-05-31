@@ -12,6 +12,90 @@ local fsdash = {
     app = {guiIsRunning = false}
 }
 
+local LOG_LEVEL_ORDER = {
+    off = 0,
+    error = 1,
+    warn = 2,
+    info = 3,
+    debug = 4
+}
+
+local function normalizeLogLevel(level)
+    if type(level) == "number" then
+        if level <= 0 then
+            return "off"
+        end
+        if level == 1 then
+            return "info"
+        end
+        return "debug"
+    end
+
+    if type(level) ~= "string" then
+        return "debug"
+    end
+
+    level = string.lower(level)
+    if level == "warning" then
+        level = "warn"
+    end
+
+    if LOG_LEVEL_ORDER[level] ~= nil then
+        return level
+    end
+
+    return "debug"
+end
+
+local function getConfiguredLogLevel()
+    local preferred = fsdash.preferences
+        and fsdash.preferences.developer
+        and fsdash.preferences.developer.loglevel
+        or nil
+
+    if preferred == nil and fsdash.config and fsdash.config.defaultLogLevel then
+        preferred = fsdash.config.defaultLogLevel
+    end
+
+    return normalizeLogLevel(preferred)
+end
+
+local function shouldLog(level)
+    local current = getConfiguredLogLevel()
+    return (LOG_LEVEL_ORDER[normalizeLogLevel(level)] or 0) <= (LOG_LEVEL_ORDER[current] or 0)
+end
+
+local function appendRuntimeLog(level, source, message)
+    local preferencesRoot = "SCRIPTS:/" .. fsdash.config.preferences
+    local logDir = preferencesRoot .. "/logs"
+    local runtimeLogFile = logDir .. "/runtime.log"
+
+    os.mkdir(preferencesRoot)
+    os.mkdir(logDir)
+
+    local timestamp = os.date and os.date("%Y-%m-%d %H:%M:%S") or tostring(os.clock())
+    local line = string.format("%s | %s | %s | %s", timestamp, tostring(level), tostring(source or "core"), tostring(message))
+    local file = io.open(runtimeLogFile, "a")
+    if file then
+        io.write(file, line, "\n")
+        io.close(file)
+    end
+end
+
+function fsdash.getLogLevel()
+    return getConfiguredLogLevel()
+end
+
+function fsdash.log(message, level, source)
+    level = normalizeLogLevel(level or "debug")
+    if not shouldLog(level) then
+        return false
+    end
+
+    appendRuntimeLog(level, source, message)
+    return true
+end
+
 package.loaded.FSDash = fsdash
 
 if not FONT_M then
@@ -24,7 +108,8 @@ fsdash.config = {
     preferences = "FSDash.user",
     version = {major = 2, minor = 3, revision = 0, suffix = "DEV"},
     ethosVersion = {1, 6, 2},
-    supportedMspApiVersion = {"12.07", "12.08", "12.09"}
+    supportedMspApiVersion = {"12.07", "12.08", "12.09"},
+    defaultLogLevel = "off"
 }
 
 local userPreferenceDefaults = {

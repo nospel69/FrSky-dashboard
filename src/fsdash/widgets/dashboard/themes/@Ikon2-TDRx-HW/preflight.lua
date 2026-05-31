@@ -26,21 +26,28 @@ local colorMode = utils.themeColors()
 local theme_section = "system/@default"
 
 local THEME_DEFAULTS = {rpm_min = 0, rpm_max = 3000, bec_min = 3.0, bec_max = 13.0, esctemp_warn = 90, esctemp_max = 140, tx_min = 7.2, tx_warn = 7.4, tx_max = 8.4}
+local DEFAULT_THEME_OPTION_KEY = "ls_full"
+local themeOptionKeysByWidth = {[800] = "ls_full", [784] = "ls_std", [640] = "ss_full", [630] = "ss_std", [480] = "ms_full", [472] = "ms_std"}
+local supportedThemeWidths = {800, 784, 640, 630, 480, 472}
 
 local function getThemeOptionKey(W)
-    if W == 800 then
-        return "ls_full"
-    elseif W == 784 then
-        return "ls_std"
-    elseif W == 640 then
-        return "ss_full"
-    elseif W == 630 then
-        return "ss_std"
-    elseif W == 480 then
-        return "ms_full"
-    elseif W == 472 then
-        return "ms_std"
+    W = tonumber(W)
+    if W == nil and system.getVersion then
+        local version = system.getVersion() or {}
+        W = tonumber(version.lcdWidth)
     end
+    W = W or 800
+
+    local closestW, closestDistance
+    for _, candidate in ipairs(supportedThemeWidths) do
+        local distance = math.abs(W - candidate)
+        if closestDistance == nil or distance < closestDistance then
+            closestW = candidate
+            closestDistance = distance
+        end
+    end
+
+    return themeOptionKeysByWidth[closestW] or DEFAULT_THEME_OPTION_KEY
 end
 
 local themeOptions = {
@@ -78,7 +85,7 @@ local header_layout = {height = headeropts.height, cols = 7, rows = 1, padding =
 
 local function buildBoxes(W)
 
-    local opts = themeOptions[getThemeOptionKey(W)] or themeOptions.ms_std
+    local opts = themeOptions[getThemeOptionKey(W)] or themeOptions[DEFAULT_THEME_OPTION_KEY]
 
     return {
 
@@ -192,7 +199,7 @@ local header_boxes = {
     {col = 1, row = 1, colspan = 2, type = "text", subtype = "craftname", font = headeropts.font, valuealign = "left", valuepaddingleft = 5, bgcolor = colorMode.bgcolortop, titlecolor = colorMode.titlecolor, textcolor = colorMode.textcolor},
 
     {col = 3, row = 1, colspan = 3, type = "image", subtype = "image", bgcolor = colorMode.bgcolortop}, {
-        col = 6,
+        col = 5,
         row = 1,
         type = "gauge",
         subtype = "bar",
@@ -221,6 +228,28 @@ local header_boxes = {
         max = getThemeValue("tx_max"),
         thresholds = {{value = getThemeValue("tx_warn"), fillcolor = "orange"}, {value = getThemeValue("tx_max"), fillcolor = colorMode.txfillcolor}}
     }, {
+        col = 6,
+        row = 1,
+        type = "gauge",
+        subtype = "step",
+        source = "rssi",
+        font = "FONT_XS",
+        stepgap = 2,
+        stepcount = 5,
+        decimals = 0,
+        valuealign = "left",
+        barpaddingleft = headeropts.barpaddingleft,
+        barpaddingright = headeropts.barpaddingright,
+        barpaddingbottom = headeropts.barpaddingbottom,
+        barpaddingtop = headeropts.barpaddingtop,
+        valuepaddingleft = headeropts.valuepaddingleft,
+        valuepaddingbottom = headeropts.valuepaddingbottom,
+        bgcolor = colorMode.bgcolortop,
+        textcolor = colorMode.textcolor,
+        fillcolor = colorMode.rssifillcolor,
+        fillbgcolor = colorMode.rssifillbgcolor
+    },
+    {
         col = 7,
         row = 1,
         type = "gauge",
