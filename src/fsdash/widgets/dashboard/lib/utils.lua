@@ -1216,6 +1216,28 @@ function utils.transformValue(value, box)
     return value
 end
 
+function utils.decodeTransFlightMode(value)
+    local mode = tonumber(value)
+    if mode == nil then
+        return value
+    end
+
+    mode = math.floor(mode)
+    if mode == 99 or mode == -1 then
+        return "X"
+    end
+
+    if mode == 0 then
+        return "H"
+    end
+
+    if mode > 0 then
+        return mode
+    end
+
+    return mode
+end
+
 function utils.setBackgroundColourBasedOnTheme()
     local w, h = lcd.getWindowSize()
     local themeState = utils.getThemeState()

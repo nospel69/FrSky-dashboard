@@ -414,7 +414,7 @@ local sensorTable = {
         }
     },
 
-    flightmode = {
+    transFlightMode = {
         name = "@i18n(sensors.flightmode)@",
         mandatory = false,
         stats = false,
@@ -453,6 +453,288 @@ local sensorTable = {
             sim = {{uid = 0x5026, unit = UNIT_KNOT, dec = 0, value = function() return dashx.utils.simSensors('gps_sats') end, min = -1800, max = 3600}},
             sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0480, subId = 0}, {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0410, subId = 0}},
             crsfLegacy = {"GPS Sats"}
+        }
+    },
+
+    -- Basic pass-through entries for additional named telemetry sources.
+    -- These use string-based source lookup and are intended as starter mappings.
+    ADC2 = {
+        name = "@i18n(sensors.ADC2)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_RAW,
+        sensors = {
+            sport = {"ADC2"},
+            crsf = {"ADC2"},
+            spektrum = {"ADC2"}
+        }
+    },
+
+    ADC2_4G = {
+        name = "@i18n(sensors.ADC2.4G)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_RAW,
+        sensors = {
+            sport = {"ADC2.4G"},
+            crsf = {"ADC2.4G"},
+            spektrum = {"ADC2.4G"}
+        }
+    },
+
+    adj_func = {
+        name = "@i18n(sensors.adj_func)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_RAW,
+        sensors = {
+            sport = {"adj_func"},
+            crsf = {"adj_func"},
+            spektrum = {"adj_func"}
+        }
+    },
+
+    adj_val = {
+        name = "@i18n(sensors.adj_val)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_RAW,
+        sensors = {
+            sport = {"adj_val"},
+            crsf = {"adj_val"},
+            spektrum = {"adj_val"}
+        }
+    },
+
+    armdisableflags = {
+        name = "@i18n(sensors.armdisableflags)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_RAW,
+        sensors = {
+            sport = {"armdisableflags"},
+            crsf = {"armdisableflags"},
+            spektrum = {"armdisableflags"}
+        }
+    },
+
+
+
+    Bat1cons = {
+        name = "@i18n(sensors.Bat1cons)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_MILLIAMPERE_HOUR,
+        unit_string = "mAh",
+        sensors = {
+            sport = {"Bat1cons"},
+            crsf = {"Bat1cons"},
+            spektrum = {"Bat1cons"}
+        }
+    },
+
+    Bat2cons = {
+        name = "@i18n(sensors.Bat2cons)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_MILLIAMPERE_HOUR,
+        unit_string = "mAh",
+        sensors = {
+            sport = {"Bat2cons"},
+            crsf = {"Bat2cons"},
+            spektrum = {"Bat2cons"}
+        }
+    },
+
+  
+
+    GASS_res = {
+        name = "@i18n(sensors.GASS_res)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_PERCENT,
+        unit_string = "%",
+        sensors = {
+            sport = {"GASS_res"},
+            crsf = {"GASS_res"},
+            spektrum = {"GASS_res"}
+        }
+    },
+
+    governor = {
+        name = "@i18n(sensors.governor)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_RAW,
+        sensors = {
+            sport = {"governor"},
+            crsf = {"governor"},
+            spektrum = {"governor"}
+        }
+    },
+
+  
+    mcu_temp = {
+        name = "@i18n(sensors.mcu_temp)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_DEGREE,
+        sensors = {
+            sport = {"mcu_temp"},
+            crsf = {"mcu_temp"},
+            spektrum = {"mcu_temp"}
+        }
+    },
+
+    Power900M = {
+        name = "@i18n(sensors.Power900M)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_RAW,
+        sensors = {
+            sport = {"Power900M"},
+            crsf = {"Power900M"},
+            spektrum = {"Power900M"}
+        }
+    },
+
+    rate_profile = {
+        name = "@i18n(sensors.rate_profile)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_RAW,
+        sensors = {
+            sport = {"rate_profile"},
+            crsf = {"rate_profile"},
+            spektrum = {"rate_profile"}
+        }
+    },
+
+    RSSI2_4G = {
+        name = "@i18n(sensors.RSSI2_4G)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_DB,
+        unit_string = "dB",
+        sensors = {
+            sport = {"RSSI2_4G"},
+            crsf = {"RSSI2_4G"},
+            spektrum = {"RSSI2_4G"}
+        }
+    },
+
+    RSSI900M = {
+        name = "@i18n(sensors.RSSI900M)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_DB,
+        unit_string = "dB",
+        sensors = {
+            sport = {"RSSI900M"},
+            crsf = {"RSSI900M"},
+            spektrum = {"RSSI900M"}
+        }
+    },
+
+    RX = {
+        name = "@i18n(sensors.RX)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_RAW,
+        sensors = {
+            sport = {"RX"},
+            crsf = {"RX"},
+            spektrum = {"RX"}
+        }
+    },
+
+    RxBatt = {
+        name = "@i18n(sensors.RxBatt)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_VOLT,
+        unit_string = "V",
+        sensors = {
+            sport = {"RxBatt"},
+            crsf = {"RxBatt"},
+            spektrum = {"RxBatt"}
+        }
+    },
+
+    RxVFR = {
+        name = "@i18n(sensors.RxVFR)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_PERCENT,
+        unit_string = "%",
+        sensors = {
+            sport = {"RxVFR"},
+            crsf = {"RxVFR"},
+            spektrum = {"RxVFR"}
+        }
+    },
+
+    temp1 = {
+        name = "@i18n(sensors.temp1)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_DEGREE,
+        sensors = {
+            sport = {"temp1"},
+            crsf = {"temp1"},
+            spektrum = {"temp1"}
+        }
+    },
+
+    throttle_pct = {
+        name = "@i18n(sensors.throttle_pct)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_PERCENT,
+        unit_string = "%",
+        sensors = {
+            sport = {"throttle_pct"},
+            crsf = {"throttle_pct"},
+            spektrum = {"throttle_pct"}
+        }
+    },
+
+    VFAS = {
+        name = "@i18n(sensors.VFAS)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_VOLT,
+        unit_string = "V",
+        sensors = {
+            sport = {"VFAS"},
+            crsf = {"VFAS"},
+            spektrum = {"VFAS"}
+        }
+    },
+
+    VFR2_4G = {
+        name = "@i18n(sensors.VFR2_4G)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_PERCENT,
+        unit_string = "%",
+        sensors = {
+            sport = {"VFR2_4G"},
+            crsf = {"VFR2_4G"},
+            spektrum = {"VFR2_4G"}
+        }
+    },
+
+    VFR900M = {
+        name = "@i18n(sensors.VFR900M)@",
+        mandatory = false,
+        stats = false,
+        unit = UNIT_PERCENT,
+        unit_string = "%",
+        sensors = {
+            sport = {"VFR900M"},
+            crsf = {"VFR900M"},
+            spektrum = {"VFR900M"}
         }
     }
 

@@ -18,6 +18,7 @@ local lastCacheFlushTime = os.clock()
 local wakeupInterval = 1
 local lastWakeupTime = 0
 local switchCache = {}
+local lastDerivedTransFlightMode = nil
 
 local derivedDefinitions = {
     armed = {name = "Armed", appId = 0x5FE0, unit = UNIT_RAW, minimum = 0, maximum = 1},
@@ -25,7 +26,7 @@ local derivedDefinitions = {
     profile = {name = "Profile", appId = 0x5FED, unit = UNIT_RAW, minimum = 1, maximum = 3},
     smartfuel = {name = "Smart Fuel", appId = 0x5FE1, unit = UNIT_PERCENT, minimum = 0, maximum = 100},
     smartconsumption = {name = "Smart Consumption", appId = 0x5FDE, unit = UNIT_MILLIAMPERE_HOUR, minimum = 0, maximum = 1000000000},
-    flightmode = {name = "Flight Mode", appId = 0x5FEC, unit = UNIT_RAW, minimum = 0, maximum = 3}
+    transFlightMode = {name = "Flight Mode", appId = 0x5FEC, unit = UNIT_RAW, minimum = -1, maximum = 99}
 }
 
 local function sourceExists(source)
@@ -275,19 +276,37 @@ local function deriveProfileValue()
     return 1
 end
 
-local function deriveFlightModeValue(profileValue)
+local function deriveTransFlightModeValue(profileValue, armedValue)
     local modelPrefs = dashx.session.modelPreferences and dashx.session.modelPreferences.model or {}
     local throttleHoldState = readSwitchState("throttlehold", modelPrefs.throttleholdswitch)
+    local transFlightMode
 
-    if throttleHoldState == true then
-        return 0
+    if armedValue == 1 then
+        transFlightMode = -1
+    elseif throttleHoldState == true then
+        transFlightMode = 0
+    elseif type(profileValue) == "number" then
+        transFlightMode = profileValue
+    else
+        transFlightMode = 0
     end
 
-    if type(profileValue) == "number" then
-        return profileValue
+    if lastDerivedTransFlightMode ~= nil and lastDerivedTransFlightMode ~= transFlightMode then
+        dashx.utils.log(
+            string.format(
+                "transFlightMode changed %s -> %s (profile=%s armed=%s throttleHold=%s)",
+                tostring(lastDerivedTransFlightMode),
+                tostring(transFlightMode),
+                tostring(profileValue),
+                tostring(armedValue),
+                tostring(throttleHoldState)
+            ),
+            "info"
+        )
     end
 
-    return 0
+    lastDerivedTransFlightMode = transFlightMode
+    return transFlightMode
 end
 
 local function shouldUseVoltageFuel()
@@ -326,7 +345,7 @@ local function updateDerivedSensors(rootSource)
     local armed = deriveArmedValue()
     local inflight = deriveInflightValue()
     local profile = deriveProfileValue()
-    local flightmode = deriveFlightModeValue(profile)
+    local transFlightMode = deriveTransFlightModeValue(profile, armed)
     local fuel = calculateFuel()
     local consumption = calculateConsumption(fuel)
     dashx.session.isArmed = armed == 0
@@ -334,7 +353,7 @@ local function updateDerivedSensors(rootSource)
     setSensorValue(derivedDefinitions.armed, armed, rootSource)
     setSensorValue(derivedDefinitions.inflight, inflight, rootSource)
     setSensorValue(derivedDefinitions.profile, profile, rootSource)
-    setSensorValue(derivedDefinitions.flightmode, flightmode, rootSource)
+    setSensorValue(derivedDefinitions.transFlightMode, transFlightMode, rootSource)
     setSensorValue(derivedDefinitions.smartfuel, fuel, rootSource)
     setSensorValue(derivedDefinitions.smartconsumption, consumption, rootSource)
 end
@@ -345,6 +364,7 @@ function sensors.reset()
     lastCacheFlushTime = os.clock()
     lastWakeupTime = 0
     switchCache = {}
+    lastDerivedTransFlightMode = nil
     smartfuel.reset()
     smartfuelvoltage.reset()
 end
