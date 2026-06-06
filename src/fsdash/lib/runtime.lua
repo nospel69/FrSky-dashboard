@@ -49,9 +49,54 @@ local hasBeenInFlight = false
 local lastStatsAt = 0
 local inflightStartTime = nil
 local channelSources = {}
+local telemetryStartupLogged = false
 
 local function telemetry()
     return dashx.telemetry
+end
+
+local function protocolLabel(protocol)
+    if protocol == "sim" then
+        return "SIM"
+    elseif protocol == "sport" then
+        return "SPORT"
+    elseif protocol == "crsf" then
+        return "CRSF"
+    elseif protocol == "spektrum" then
+        return "SPEKTRUM"
+    end
+
+    return "UNKNOWN"
+end
+
+local function logTelemetryStartup(protocol, available)
+    local telemetryModule = telemetry()
+    local modelName = model.name and model.name() or "Unknown"
+    local startupLine = string.format(
+        "Telemetry startup: model=%s protocol=%s connected=%s",
+        tostring(modelName),
+        protocolLabel(protocol),
+        tostring(available)
+    )
+
+    print("[RUNTIME] " .. startupLine)
+    dashx.utils.log(startupLine, "info")
+
+    if not telemetryModule or not telemetryModule.getSensorSource then
+        dashx.utils.log("Telemetry startup: telemetry module not ready", "info")
+        return
+    end
+
+    local keys = {"rssi", "voltage", "rpm", "smartfuel"}
+    local states = {}
+    for _, key in ipairs(keys) do
+        local src = telemetryModule.getSensorSource(key)
+        states[#states + 1] = string.format("%s=%s", key, src and "OK" or "MISSING")
+    end
+
+    local sensorsLine = "Telemetry startup sensors: " .. table.concat(states, " ")
+    print("[RUNTIME] " .. sensorsLine)
+    dashx.utils.log(sensorsLine, "info")
 end
 
 local function copyTable(input)
@@ -87,23 +132,32 @@ local function resolvePreferencePaths(modelKey)
     local prefDir = "SCRIPTS:/" .. dashx.config.preferences
     local modelsDir = prefDir .. "/models"
     local prefFile = modelsDir .. "/" .. modelKey .. ".ini"
+    local legacyPrefFile = prefDir .. "/" .. modelKey .. ".ini"
 
     os.mkdir(prefDir)
     os.mkdir(modelsDir)
 
-    return prefFile
+    return prefFile, legacyPrefFile
 end
 
 local function loadModelPreferencesData(modelKey)
-    local prefFile = resolvePreferencePaths(modelKey)
-    local existing = dashx.ini.load_ini_file(prefFile) or {}
+    local prefFile, legacyPrefFile = resolvePreferencePaths(modelKey)
+
+    -- Backward compatibility: older builds stored model ini files directly
+    -- in the preferences root instead of preferences/models/.
+    local selectedPrefFile = prefFile
+    if not dashx.utils.file_exists(prefFile) and dashx.utils.file_exists(legacyPrefFile) then
+        selectedPrefFile = legacyPrefFile
+    end
+
+    local existing = dashx.ini.load_ini_file(selectedPrefFile) or {}
     local merged = dashx.ini.merge_ini_tables(existing, modelPreferenceDefaults)
 
     if not dashx.ini.ini_tables_equal(existing, merged) then
-        dashx.ini.save_ini_file(prefFile, merged)
+        dashx.ini.save_ini_file(selectedPrefFile, merged)
     end
 
-    return merged, prefFile
+    return merged, selectedPrefFile
 end
 
 local function buildBatteryConfig(prefs)
@@ -156,7 +210,13 @@ local function saveTimerTotals()
 
     dashx.ini.setvalue(prefs, "general", "totalflighttime", dashx.session.timer.baseLifetime or 0)
     dashx.ini.setvalue(prefs, "general", "lastflighttime", dashx.session.timer.session or 0)
-    dashx.ini.save_ini_file(prefFile, prefs)
+    local saved = dashx.ini.save_ini_file(prefFile, prefs)
+    if not saved then
+        if dashx.utils and dashx.utils.log then
+            dashx.utils.log("Failed to save widget settings: " .. tostring(prefFile), "error")
+        end
+        return false
+    end
 end
 
 local function initializeRxMap()
@@ -230,6 +290,7 @@ local function initializeModel(modelKey)
     dashx.flightmode.current = "preflight"
     currentFlightMode = "preflight"
     currentTelemetryType = nil
+    telemetryStartupLogged = false
     hasBeenInFlight = false
     inflightStartTime = nil
     lastStatsAt = 0
@@ -308,6 +369,11 @@ local function updateTelemetryState()
 
     if not available then
         dashx.session.isArmed = false
+    end
+
+    if changed or not telemetryStartupLogged then
+        logTelemetryStartup(protocol, available)
+        telemetryStartupLogged = true
     end
 
     return protocol, changed
@@ -538,6 +604,12 @@ end
 function runtime.writeWidgetSettings(widget)
     local modelKey = widget and widget._modelKey or getModelKey()
     local prefs, prefFile = loadModelPreferencesData(modelKey)
+
+    if widget and type(widget._preferencesFile) == "string" and widget._preferencesFile ~= "" then
+        prefFile = widget._preferencesFile
+        local existing = dashx.ini.load_ini_file(prefFile) or {}
+        prefs = dashx.ini.merge_ini_tables(existing, modelPreferenceDefaults)
+    end
 
     widget = widget or {}
     normalizeWidgetSettings(widget)

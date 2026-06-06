@@ -188,10 +188,7 @@ end
 
 local header_boxes = {
 
-    {col = 1, row = 1, colspan = 2, type = "text", 
-        subtype = "craftname", font = headeropts.font, 
-        valuealign = "left", valuepaddingleft = 5, 
-        bgcolor = colorMode.bgcolortop, titlecolor = colorMode.titlecolor, textcolor = colorMode.textcolor},
+    {col = 1, row = 1, colspan = 2, type = "text", subtype = "craftname", font = headeropts.font, valuealign = "left", valuepaddingleft = 5, bgcolor = colorMode.bgcolortop, titlecolor = colorMode.titlecolor, textcolor = colorMode.textcolor},
 
     {col = 3, row = 1, colspan = 3, type = "image", subtype = "image", bgcolor = colorMode.bgcolortop}, {
         col = 5,
@@ -243,7 +240,8 @@ local header_boxes = {
         textcolor = colorMode.textcolor,
         fillcolor = colorMode.rssifillcolor,
         fillbgcolor = colorMode.rssifillbgcolor
-    }, {
+    },
+    {
         col = 7,
         row = 1,
         type = "gauge",
@@ -265,7 +263,6 @@ local header_boxes = {
         fillcolor = colorMode.rssifillcolor,
         fillbgcolor = colorMode.rssifillbgcolor
     }
-
 }
 
 local function boxes()

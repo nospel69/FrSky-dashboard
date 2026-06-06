@@ -30,6 +30,7 @@ local DEFAULT_THEME_OPTION_KEY = "ls_full"
 local themeOptionKeysByWidth = {[800] = "ls_full", [784] = "ls_std", [640] = "ss_full", [630] = "ss_std", [480] = "ms_full", [472] = "ms_std"}
 local supportedThemeWidths = {800, 784, 640, 630, 480, 472}
 
+
 local function getThemeOptionKey(W)
     W = tonumber(W)
     if W == nil and system.getVersion then
@@ -90,11 +91,11 @@ local function buildBoxes(W)
     return {
 
         {col = 1, row = 1, colspan = 8, rowspan = 3, type = "image", subtype = "model", bgcolor = colorMode.bgcolor},
-        {col = 1, row = 4, colspan = 8, rowspan = 3, type = "text", subtype = "telemetry", source = "transFlightMode", nosource = "-", unit = "", 
+        {col = 1, row = 4, colspan = 8, rowspan = 3, type = "text", subtype = "telemetry", source = "rpm", nosource = "-", unit = "", transform = "floor", title = "RPM", titlepos = "bottom", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor},
+        {col = 1, row = 7, colspan = 4, rowspan = 2, type = "text", subtype = "telemetry", source = "transFlightMode", nosource = "-", unit = "", 
             transform = function(v)
                 return utils.decodeTransFlightMode(v) end, 
             title = "Flight Mode", titlepos = "bottom", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor},
-        {col = 1, row = 7, colspan = 4, rowspan = 2, type = "text", subtype = "telemetry", source = "temp_esc", title = "TEMP", titlepos = "bottom", transform = "floor", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor},
         {col = 5, row = 7, colspan = 4, rowspan = 2, type = "time", subtype = "count", title = "FLIGHTS", titlepos = "bottom", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor},
         {col = 9, row = 7, colspan = 6, rowspan = 2, type = "time", subtype = "flight", title = "TIME", titlepos = "bottom", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor},
         {col = 15, row = 7, colspan = 6, rowspan = 2, type = "text", subtype = "telemetry", source = "rssi", nosource = "-", unit = "dB", title = "LQ", titlepos = "bottom", transform = "floor", titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor, bgcolor = colorMode.bgcolor}, 
