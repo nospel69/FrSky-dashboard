@@ -22,10 +22,20 @@ function utils.session()
     dashx.session.servoOverride = nil
     dashx.session.clockSet = nil
     dashx.session.apiVersion = nil
+    dashx.session.activeProfile = nil
+    dashx.session.activeRateProfile = nil
+    dashx.session.activeProfileLast = nil
+    dashx.session.activeRateLast = nil
+    dashx.session.servoCount = nil
+    dashx.session.servoOverride = nil
+    dashx.session.clockSet = nil
     dashx.session.lastLabel = nil
+    dashx.session.tailMode = nil
+    dashx.session.swashMode = nil
     dashx.session.formLineCnt = nil
     dashx.session.rateProfile = nil
     dashx.session.governorMode = nil
+    dashx.session.servoOverride = nil
     dashx.session.ethosRunningVersion = nil
     dashx.session.lcdWidth = nil
     dashx.session.lcdHeight = nil
@@ -43,6 +53,7 @@ function utils.session()
     dashx.session.bblSize = nil
     dashx.session.bblUsed = nil
     dashx.session.batteryConfig = nil
+
     dashx.session.modelPreferences = nil
     dashx.session.modelPreferencesFile = nil
     dashx.session.dashboardEditingTheme = nil
@@ -242,9 +253,9 @@ function utils.playFile(pkg, file)
     local wavDefault = "SCRIPTS:/dashx/audio/en/default/" .. pkg .. "/" .. file
 
     local path
-    if utils.file_exists(wavUser) then
+    if dashx.utils.file_exists(wavUser) then
         path = wavUser
-    elseif utils.file_exists(wavLocale) then
+    elseif dashx.utils.file_exists(wavLocale) then
         path = wavLocale
     else
         path = wavDefault
@@ -287,8 +298,8 @@ function utils.getCurrentProfile()
 end
 
 function utils.ethosVersionAtLeast(targetVersion)
-    local env = system.getVersion() or {}
-    local currentVersion = {env.major or 0, env.minor or 0, env.revision or 0}
+    local env = system.getVersion()
+    local currentVersion = {env.major, env.minor, env.revision}
 
     if targetVersion == nil then
         if dashx and dashx.config and dashx.config.ethosVersion then
@@ -351,9 +362,7 @@ function utils.joinTableItems(tbl, delimiter)
 end
 
 function utils.log(msg, level)
-    if dashx.log then
-        dashx.log(msg, level or "debug", "utils")
-    elseif dashx.logger and dashx.logger.add then
+    if dashx.logger and dashx.logger.add then
         dashx.logger.add(msg, level or "debug")
     end
 end
@@ -466,7 +475,7 @@ function utils.loadImage(image1, image2, image3)
         local path = utils._imagePathCache[key]
         if not path then
             for _, p in ipairs(tryPaths) do
-                if utils.file_exists(p) then
+                if dashx.utils.file_exists(p) then
                     path = p
                     break
                 end

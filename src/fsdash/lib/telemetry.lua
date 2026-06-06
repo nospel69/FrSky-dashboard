@@ -58,8 +58,8 @@ local onchangeInitialized = false
 
 local sensorTable = {
 
-    rssi = {   -- VFR  in transmiter
-        name = "@i18n(sensors.rssi)@",
+    rssi = {
+        name = "RSSI",
         mandatory = true,
         stats = true,
         switch_alerts = true,
@@ -67,17 +67,14 @@ local sensorTable = {
         unit_string = "%",
         sensors = {
             sim = {{appId = 0xF010, subId = 0}},
-            sport = {
-                    {appId = 0xF010, subId = 0},
-                    {appId = 0xF010, subId = 0x18}
-                    },
+            sport = {{appId = 0xF010, subId = 0}},
             crsf = {{crsfId = 0x14, subId = 2}},
             spektrum = {"Tx RSSI"}
         }
     },
 
-    link = {  --rx in transmiter
-        name = "@i18n(sensors.link)@",
+    link = {
+        name = "@i18n(telemetry.sensors.link)@",
         mandatory = true,
         stats = true,
         switch_alerts = false,
@@ -85,17 +82,14 @@ local sensorTable = {
         unit_string = "dB",
         sensors = {
             sim = {{appId = 0xF101, subId = 0}},
-            sport = {
-                    {appId = 0xF101, subId = 0},
-                    {appId = 0xF101, subId = 0x18},
-                },
+            sport = {{appId = 0xF101, subId = 0}},
             crsf = {"Rx RSSI1"},
             spektrum = {"Tx RSSI"}
         }
     },
 
     voltage = {
-        name = "@i18n(sensors.voltage)@",
+        name = "Voltage",
         mandatory = true,
         stats = true,
         set_telemetry_sensors = 3,
@@ -104,19 +98,14 @@ local sensorTable = {
         unit_string = "V",
         sensors = {
             sim = {{uid = 0x5002, unit = UNIT_VOLT, dec = 2, value = function() return dashx.utils.simSensors('voltage') end, min = 0, max = 3000}},
-            sport = {
-                    {appId = 0x0B50, subId = 0}, 
-                    {appId = 0x0210, subId = 0}, 
-                    {appId = 0xF103, subId = 0}, 
-                    {appId = 0xF103, subId = 1}
-                },
+            sport = {{appId = 0x0B50, subId = 0}, {appId = 0x0210, subId = 0}, {appId = 0xF103, subId = 0}, {appId = 0xF103, subId = 1}},
             crsf = {"Rx Batt"},
             spektrum = {"LiPo1", "LiPo2", "RxBatt"}
         }
     },
 
     rpm = {
-        name = "@i18n(sensors.headspeed)@",
+        name = "Headspeed",
         mandatory = true,
         stats = true,
         set_telemetry_sensors = 60,
@@ -125,16 +114,12 @@ local sensorTable = {
         unit_string = "rpm",
         sensors = {
             sim = {{uid = 0x5003, unit = UNIT_RPM, dec = nil, value = function() return dashx.utils.simSensors('rpm') end, min = 0, max = 4000}}, 
-            sport = {
-                    {appId = 0x0B60, subId = 0}, 
-                    {appId = 0x0500, subId = 0},
-                    {appId = 0x050F, subId = 4}
-                }
+            sport = {{appId = 0x0B60, subId = 0}, {appId = 0x0500, subId = 0}}
         }
     },
 
     fuel = {
-        name = "@i18n(sensors.fuel)@",
+        name = "Fuel",
         mandatory = false,
         stats = true,
         set_telemetry_sensors = 6,
@@ -143,16 +128,13 @@ local sensorTable = {
         unit_string = "%",
         sensors = {
             sim = {{uid = 0x5007, unit = UNIT_PERCENT, dec = 0, value = function() return dashx.utils.simSensors('fuel') end, min = 0, max = 100}}, 
-            sport = {
-                    {appId = 0x060F, subId = 0x12},
-                    {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0600}
-                    }, 
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0600}}, 
             crsf = {"Rx Batt%"}
         }
     },
 
     smartfuel = {
-        name = "@i18n(sensors.smartfuel)@",
+        name = "Smart fuel",
         mandatory = false,
         stats = true,
         set_telemetry_sensors = nil,
@@ -167,7 +149,7 @@ local sensorTable = {
     },
 
     smartconsumption = {
-        name = "@i18n(sensors.smartconsumption)@",
+        name = "Smart Consumption",
         mandatory = false,
         stats = true,
         switch_alerts = true,
@@ -181,7 +163,7 @@ local sensorTable = {
     },
 
     current = {
-        name = "@i18n(sensors.current)@",
+        name = "Current",
         mandatory = false,
         stats = true,
         set_telemetry_sensors = 18,
@@ -190,18 +172,14 @@ local sensorTable = {
         unit_string = "A",
         sensors = {
             sim = {{uid = 0x5004, unit = UNIT_AMPERE, dec = 0, value = function() return dashx.utils.simSensors('current') end, min = 0, max = 300}}, 
-            sport = {
-                    {appId = 0x0B50, subId = 1}, 
-                    {appId = 0x0200, subId = 0}, 
-                    {appId = 0x020F, subId = 2}
-            },
+            sport = {{appId = 0x0B50, subId = 1}, {appId = 0x0200, subId = 0}}, 
             crsf = {"Rx Current"},
             spektrum = {"ESC current"}
         }
     },
 
     temp_esc = {
-        name = "@i18n(sensors.esc_temp)@",
+        name = "ESC Temperature",
         mandatory = false,
         stats = true,
         set_telemetry_sensors = 23,
@@ -209,10 +187,7 @@ local sensorTable = {
         unit = UNIT_DEGREE,
         sensors = {
             sim = {{uid = 0x5005, unit = UNIT_DEGREE, dec = 0, value = function() return dashx.utils.simSensors('temp_esc') end, min = 0, max = 100}}, 
-            sport = {
-                    {appId = 0x0B70, subId = 0},
-                    {appId = 0x040F, subId = 0x0C}
-                },
+            sport = {{appId = 0x0B70, subId = 0}},
             spektrum = {"ESC temp"},
         },
         localizations = function(value)
@@ -229,7 +204,7 @@ local sensorTable = {
     },
 
     altitude = {
-        name = "@i18n(sensors.altitude)@",
+        name = "Altitude",
         mandatory = false,
         stats = true,
         switch_alerts = true,
@@ -251,7 +226,7 @@ local sensorTable = {
     },
 
     consumption = {
-        name = "@i18n(sensors.consumption)@",
+        name = "Consumption",
         mandatory = true,
         stats = true,
         set_telemetry_sensors = 5,
@@ -260,16 +235,12 @@ local sensorTable = {
         unit_string = "mAh",
         sensors = {
             sim = {{uid = 0x5008, unit = UNIT_MILLIAMPERE_HOUR, dec = 0, value = function() return dashx.utils.simSensors('consumption') end, min = 0, max = 5000}}, 
-            sport = {
-                    {appId = 0x0B60, subId = 1}, 
-                    {appId = 0x0B30, subId = 0},
-                    {appId = 0x0B3F, subId = 0x0B}
-                }, 
+            sport = {{appId = 0x0B60, subId = 1}, {appId = 0x0B30, subId = 0}}, 
             crsf = {"Rx Cons"}}
     },
 
     armed = {
-        name = "@i18n(sensors.arming_flags)@",
+        name = "Arming Flags",
         mandatory = false,
         stats = false,
         set_telemetry_sensors = nil,
@@ -284,7 +255,7 @@ local sensorTable = {
     },
 
     inflight = {
-        name = "@i18n(sensors.inflight)@",
+        name = "Idle Up",
         mandatory = false,
         stats = false,
         set_telemetry_sensors = nil,
@@ -295,21 +266,6 @@ local sensorTable = {
             sim = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF}},
             sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF}},
             crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF}}
-        }
-    },
-
-    profile = {
-        name = "@i18n(sensors.profile)@",
-        mandatory = false,
-        stats = false,
-        set_telemetry_sensors = nil,
-        switch_alerts = false,
-        unit = UNIT_RAW,
-        unit_string = nil,
-        sensors = {
-            sim = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FED}},
-            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FED}},
-            crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FED}}
         }
     },
 
@@ -326,7 +282,7 @@ local sensorTable = {
     },
 
     bec_voltage = {
-        name = "@i18n(sensors.bec_voltage)@",
+        name = "Bec Voltage",
         mandatory = true,
         stats = true,
         set_telemetry_sensors = 43,
@@ -335,11 +291,7 @@ local sensorTable = {
         unit_string = "V",
         sensors = {
             sim = {{uid = 0x5017, unit = UNIT_VOLT, dec = 2, value = function() return dashx.utils.simSensors('bec_voltage') end, min = 0, max = 3000}},
-            sport = {
-                    {appId = 0xF104, subId = 0x18},
-                    {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0901}, 
-                    {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0219}
-                },
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0901}, {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0219}},
             crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1081}, {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1049}},
             crsfLegacy = {nil}
         }
@@ -419,18 +371,9 @@ local sensorTable = {
         mandatory = false,
         stats = false,
         sensors = {
-            sim = {
-                    {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FEC},
-                    {uid = 0x5024, unit = UNIT_DEGREE, dec = 1, value = function() return dashx.utils.simSensors('flightmode') end, min = -1800, max = 3600}
-                },
-            sport = {
-                    {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FEC},
-                    {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1}
-                },
-            crsf = {
-                    {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FEC},
-                    "Flight mode"
-                }}
+            sim = {{uid = 0x5024, unit = UNIT_DEGREE, dec = 1, value = function() return dashx.utils.simSensors('flightmode') end, min = -1800, max = 3600}}, 
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1}}, 
+            crsf = {"Flight mode"}}
     },
 
     groundspeed = {
@@ -479,15 +422,11 @@ function telemetry.listSwitchSensors()
 end
 
 function telemetry.getSensorSource(name)
-    if not sensorTable[name] then 
-        print("[DEBUG] telemetry.getSensorSource: sensorTable['" .. tostring(name) .. "'] does not exist")
-        return nil 
-    end
+    if not sensorTable[name] then return nil end
 
     if sensors[name] then
         cache_hits = cache_hits + 1
         mark_hot(name)
-        print("[DEBUG] telemetry.getSensorSource: cache HIT for '" .. name .. "'")
         return sensors[name]
     end
 
@@ -504,7 +443,6 @@ function telemetry.getSensorSource(name)
 
     if system.getVersion().simulation == true then
         protocol = "sport"
-        print("[DEBUG] telemetry.getSensorSource: trying protocol 'sim' for '" .. name .. "'")
         for _, sensor in ipairs(sensorTable[name].sensors.sim or {}) do
 
             if sensor.uid then
@@ -515,7 +453,6 @@ function telemetry.getSensorSource(name)
                         cache_misses = cache_misses + 1
                         sensors[name] = source
                         mark_hot(name)
-                        print("[DEBUG] telemetry.getSensorSource: RESOLVED '" .. name .. "' via sim (uid) with uid=" .. string.format("0x%04X", sensor.uid))
                         return source
                     end
                 end
@@ -529,61 +466,48 @@ function telemetry.getSensorSource(name)
                         cache_misses = cache_misses + 1
                         sensors[name] = source
                         mark_hot(name)
-                        print("[DEBUG] telemetry.getSensorSource: RESOLVED '" .. name .. "' via sim (category) with appId=" .. string.format("0x%04X", sensor.appId or 0))
                         return source
                     end
                 end
             end
         end
-        print("[DEBUG] telemetry.getSensorSource: FAILED to resolve '" .. name .. "' via sim")
     elseif dashx.session.telemetryType == "crsf" then
         protocol = "crsf"
-        print("[DEBUG] telemetry.getSensorSource: trying protocol 'crsf' for '" .. name .. "'")
         for _, sensor in ipairs(sensorTable[name].sensors.crsf or {}) do
             local source = system.getSource(sensor)
             if source then
                 cache_misses = cache_misses + 1
                 sensors[name] = source
                 mark_hot(name)
-                print("[DEBUG] telemetry.getSensorSource: RESOLVED '" .. name .. "' via crsf with sensor=" .. tostring(sensor))
                 return source
             end
         end
-        print("[DEBUG] telemetry.getSensorSource: FAILED to resolve '" .. name .. "' via crsf")
     elseif dashx.session.telemetryType == "sport" then
         protocol = "sport"
-        print("[DEBUG] telemetry.getSensorSource: trying protocol 'sport' for '" .. name .. "'")
         for _, sensor in ipairs(sensorTable[name].sensors.sport or {}) do
             local source = system.getSource(sensor)
             if source then
                 cache_misses = cache_misses + 1
                 sensors[name] = source
                 mark_hot(name)
-                print("[DEBUG] telemetry.getSensorSource: RESOLVED '" .. name .. "' via sport with appId=" .. string.format("0x%04X", sensor.appId or 0) .. ", subId=" .. (sensor.subId or 0))
                 return source
             end
         end
-        print("[DEBUG] telemetry.getSensorSource: FAILED to resolve '" .. name .. "' via sport")
     elseif dashx.session.telemetryType == "spektrum" then
         protocol = "spektrum"
-        print("[DEBUG] telemetry.getSensorSource: trying protocol 'spektrum' for '" .. name .. "'")
         for _, sensor in ipairs(sensorTable[name].sensors.spektrum or {}) do
             local source = system.getSource(sensor)
             if source then
                 cache_misses = cache_misses + 1
                 sensors[name] = source
                 mark_hot(name)
-                print("[DEBUG] telemetry.getSensorSource: RESOLVED '" .. name .. "' via spektrum with sensor=" .. tostring(sensor))
                 return source
             end
         end
-        print("[DEBUG] telemetry.getSensorSource: FAILED to resolve '" .. name .. "' via spektrum")
     else
         protocol = "unknown"
-        print("[DEBUG] telemetry.getSensorSource: UNKNOWN telemetry type for '" .. name .. "': telemetryType=" .. tostring(dashx.session.telemetryType))
     end
 
-    print("[DEBUG] telemetry.getSensorSource: COMPLETE FAILURE - could not resolve '" .. name .. "' via any protocol")
     return nil
 end
 

@@ -79,10 +79,6 @@ local function appendThemeFallbackLog(state, themeValue, reason)
 end
 
 local function appendThemeDebugLog(message)
-    if not (fsdash and fsdash.getLogLevel and fsdash.getLogLevel() == "debug") then
-        return
-    end
-
     os.mkdir(preferencesBasePath)
     os.mkdir(themeFallbackLogDir)
 

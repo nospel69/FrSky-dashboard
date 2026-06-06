@@ -25,7 +25,6 @@ local modelPreferenceDefaults = {
         armswitch = false,
         inflightswitch = "RPM",
         inflightswitch_delay = 10,
-        throttleholdswitch = false,
         rateswitch = false
     },
     battery = {
@@ -494,7 +493,6 @@ local function normalizeWidgetSettings(widget)
     widget.inflightswitch_delay = clamp(math.floor(tonumber(widget.inflightswitch_delay) or 10), 0, 120)
     widget.armswitch = normalizeSwitchValue(widget.armswitch)
     widget.inflightswitch = normalizeSwitchValue(widget.inflightswitch)
-    widget.throttleholdswitch = normalizeSwitchValue(widget.throttleholdswitch)
 end
 
 function runtime.readWidgetSettings(widget)
@@ -520,7 +518,6 @@ function runtime.readWidgetSettings(widget)
         widget.armswitch = modelPrefs.armswitch or false
         widget.inflightswitch = modelPrefs.inflightswitch or false
         widget.inflightswitch_delay = tonumber(modelPrefs.inflightswitch_delay) or 10
-        widget.throttleholdswitch = modelPrefs.throttleholdswitch or false
         widget._modelKey = modelKey
         widget._preferencesFile = prefFile
         normalizeWidgetSettings(widget)
@@ -553,7 +550,6 @@ function runtime.writeWidgetSettings(widget)
     prefs.model.armswitch = widget.armswitch
     prefs.model.inflightswitch = widget.inflightswitch
     prefs.model.inflightswitch_delay = widget.inflightswitch_delay
-    prefs.model.throttleholdswitch = widget.throttleholdswitch
 
     prefs.battery.calc_local = widget.calc_local
     prefs.battery.batteryCapacity = widget.batteryCapacity
