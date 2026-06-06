@@ -387,7 +387,8 @@ local sensorTable = {
         stats = false,
         sensors = {
             sim = {{uid = 0x5024, unit = UNIT_DEGREE, dec = 1, value = function() return dashx.utils.simSensors('flightmode') end, min = -1800, max = 3600}}, 
-            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1}}, 
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FEC}, 
+                     {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1}}, 
             crsf = {"Flight mode"}}
     },
 
