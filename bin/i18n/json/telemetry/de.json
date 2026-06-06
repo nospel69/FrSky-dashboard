@@ -209,21 +209,6 @@
       "english": "Rx VFR",
       "translation": "Rx VFR",
       "needs_translation": true
-    },
-    "link": {
-      "english": "Link Quality",
-      "translation": "Link Quality",
-      "needs_translation": true
-    },
-    "flightmode": {
-      "english": "Flight Mode",
-      "translation": "Flight Mode",
-      "needs_translation": true
-    },
-    "gps_sats": {
-      "english": "GPS Sats",
-      "translation": "GPS Sats",
-      "needs_translation": true
     }
   }
 }
