@@ -381,7 +381,7 @@ local sensorTable = {
         }
     },
 
-    flightmode = {
+    transFlightMode  = {
         name = "@i18n(sensors.flightmode)@",
         mandatory = false,
         stats = false,

@@ -19,13 +19,14 @@ local wakeupInterval = 1
 local lastWakeupTime = 0
 local switchCache = {}
 
+
 local derivedDefinitions = {
     armed = {name = "Armed", appId = 0x5FE0, unit = UNIT_RAW, minimum = 0, maximum = 1},
     inflight = {name = "Inflight", appId = 0x5FDF, unit = UNIT_RAW, minimum = 0, maximum = 1},
     profile = {name = "Profile", appId = 0x5FED, unit = UNIT_RAW, minimum = 1, maximum = 3},
     smartfuel = {name = "Smart Fuel", appId = 0x5FE1, unit = UNIT_PERCENT, minimum = 0, maximum = 100},
     smartconsumption = {name = "Smart Consumption", appId = 0x5FDE, unit = UNIT_MILLIAMPERE_HOUR, minimum = 0, maximum = 1000000000},
-    flightmode = {name = "Flight Mode", appId = 0x5FEC, unit = UNIT_RAW, minimum = 0, maximum = 3}
+    flightmode = {name = "Flight Mode", appId = 0x5FEC, unit = UNIT_RAW, minimum = -1, maximum = 99}
 }
 
 local function sourceExists(source)
@@ -68,6 +69,7 @@ local function callSensorMethod(sensor, methodName, ...)
 end
 
 local function ensureSensor(definition, rootSource)
+    
     local appId = definition.appId
     local existing = cachedSensors[appId]
     if sourceExists(existing) then
@@ -277,19 +279,22 @@ local function deriveProfileValue()
     return 1
 end
 
-local function deriveFlightModeValue(profileValue)
+local function deriveFlightModeValue(profileValue, armedValue)
     local modelPrefs = dashx.session.modelPreferences and dashx.session.modelPreferences.model or {}
     local throttleHoldState = readSwitchState("throttlehold", modelPrefs.throttleholdswitch)
+    local transFlightMode
 
-    if throttleHoldState == true then
-        return 0
+    if armedValue == 1 then
+        transFlightMode = -1
+    elseif throttleHoldState == true then
+        transFlightMode = 0
+    elseif type(profileValue) == "number" then
+        transFlightMode = profileValue
+    else
+        transFlightMode = 0
     end
 
-    if type(profileValue) == "number" then
-        return profileValue
-    end
-
-    return 0
+    return transFlightMode
 end
 
 local function shouldUseVoltageFuel()
@@ -328,7 +333,7 @@ local function updateDerivedSensors(rootSource)
     local armed = deriveArmedValue()
     local inflight = deriveInflightValue()
     local profile = deriveProfileValue()
-    local flightmode = deriveFlightModeValue(profile)
+    local flightmode = deriveFlightModeValue(profile, armed)
     local fuel = calculateFuel()
     local consumption = calculateConsumption(fuel)
     dashx.session.isArmed = armed == 0
