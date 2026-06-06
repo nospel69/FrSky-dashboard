@@ -102,7 +102,7 @@ local header_boxes = {
     {col = 1, row = 1, colspan = 2, type = "text", subtype = "craftname", font = headeropts.font, valuealign = "left", valuepaddingleft = 5, bgcolor = colorMode.bgcolortop, titlecolor = colorMode.titlecolor, textcolor = colorMode.textcolor},
 
     {col = 3, row = 1, colspan = 3, type = "image", subtype = "image", bgcolor = colorMode.bgcolortop}, {
-        col = 6,
+        col = 5,
         row = 1,
         type = "gauge",
         subtype = "bar",
@@ -130,7 +130,30 @@ local header_boxes = {
         min = getThemeValue("tx_min"),
         max = getThemeValue("tx_max"),
         thresholds = {{value = getThemeValue("tx_warn"), fillcolor = "orange"}, {value = getThemeValue("tx_max"), fillcolor = colorMode.txfillcolor}}
-    }, {
+    },
+    {
+        col = 6,
+        row = 1,
+        type = "gauge",
+        subtype = "step",
+        source = "rssi",
+        font = "FONT_XS",
+        stepgap = 2,
+        stepcount = 5,
+        decimals = 0,
+        valuealign = "left",
+        barpaddingleft = headeropts.barpaddingleft,
+        barpaddingright = headeropts.barpaddingright,
+        barpaddingbottom = headeropts.barpaddingbottom,
+        barpaddingtop = headeropts.barpaddingtop,
+        valuepaddingleft = headeropts.valuepaddingleft,
+        valuepaddingbottom = headeropts.valuepaddingbottom,
+        bgcolor = colorMode.bgcolortop,
+        textcolor = colorMode.textcolor,
+        fillcolor = colorMode.rssifillcolor,
+        fillbgcolor = colorMode.rssifillbgcolor
+    },
+    {
         col = 7,
         row = 1,
         type = "gauge",

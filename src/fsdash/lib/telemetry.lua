@@ -59,7 +59,7 @@ local onchangeInitialized = false
 local sensorTable = {
 
     rssi = {
-        name = "RSSI",
+        name =  "@i18n(sensors.rssi)@",
         mandatory = true,
         stats = true,
         switch_alerts = true,
@@ -74,7 +74,7 @@ local sensorTable = {
     },
 
     link = {
-        name = "@i18n(telemetry.sensors.link)@",
+        name = "@i18n(sensors.link)@",
         mandatory = true,
         stats = true,
         switch_alerts = false,
@@ -89,7 +89,7 @@ local sensorTable = {
     },
 
     voltage = {
-        name = "Voltage",
+        name = "@i18n(sensors.voltage)@",
         mandatory = true,
         stats = true,
         set_telemetry_sensors = 3,
@@ -105,7 +105,7 @@ local sensorTable = {
     },
 
     rpm = {
-        name = "Headspeed",
+        name = "@i18n(sensors.headspeed)@",
         mandatory = true,
         stats = true,
         set_telemetry_sensors = 60,
@@ -119,7 +119,7 @@ local sensorTable = {
     },
 
     fuel = {
-        name = "Fuel",
+        name = "@i18n(sensors.fuel)@",
         mandatory = false,
         stats = true,
         set_telemetry_sensors = 6,
@@ -134,7 +134,7 @@ local sensorTable = {
     },
 
     smartfuel = {
-        name = "Smart fuel",
+        name = "@i18n(sensors.smartfuel)@",
         mandatory = false,
         stats = true,
         set_telemetry_sensors = nil,
@@ -149,7 +149,7 @@ local sensorTable = {
     },
 
     smartconsumption = {
-        name = "Smart Consumption",
+        name = "@i18n(sensors.smartconsumption)@",
         mandatory = false,
         stats = true,
         switch_alerts = true,
@@ -163,7 +163,7 @@ local sensorTable = {
     },
 
     current = {
-        name = "Current",
+        name = "@i18n(sensors.current)@",
         mandatory = false,
         stats = true,
         set_telemetry_sensors = 18,
@@ -179,7 +179,7 @@ local sensorTable = {
     },
 
     temp_esc = {
-        name = "ESC Temperature",
+        name = "@i18n(sensors.temp_esc)@",
         mandatory = false,
         stats = true,
         set_telemetry_sensors = 23,
@@ -204,7 +204,7 @@ local sensorTable = {
     },
 
     altitude = {
-        name = "Altitude",
+        name = "@i18n(sensors.altitude)@",
         mandatory = false,
         stats = true,
         switch_alerts = true,
@@ -226,7 +226,7 @@ local sensorTable = {
     },
 
     consumption = {
-        name = "Consumption",
+        name = "@i18n(sensors.consumption)@",
         mandatory = true,
         stats = true,
         set_telemetry_sensors = 5,
@@ -240,7 +240,7 @@ local sensorTable = {
     },
 
     armed = {
-        name = "Arming Flags",
+        name = "@i18n(sensors.armed)@",
         mandatory = false,
         stats = false,
         set_telemetry_sensors = nil,
@@ -255,7 +255,7 @@ local sensorTable = {
     },
 
     inflight = {
-        name = "Idle Up",
+        name = "@i18n(sensors.inflight)@",
         mandatory = false,
         stats = false,
         set_telemetry_sensors = nil,
@@ -266,6 +266,21 @@ local sensorTable = {
             sim = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF}},
             sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF}},
             crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF}}
+        }
+    },
+
+    profile = {
+        name = "@i18n(sensors.profile)@",
+        mandatory = false,
+        stats = false,
+        set_telemetry_sensors = nil,
+        switch_alerts = false,
+        unit = UNIT_RAW,
+        unit_string = nil,
+        sensors = {
+            sim = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FED}},
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FED}},
+            crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FED}}
         }
     },
 
@@ -282,7 +297,7 @@ local sensorTable = {
     },
 
     bec_voltage = {
-        name = "Bec Voltage",
+        name = "@i18n(sensors.bec_voltage)@",
         mandatory = true,
         stats = true,
         set_telemetry_sensors = 43,
