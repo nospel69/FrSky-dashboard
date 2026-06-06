@@ -58,7 +58,7 @@ local onchangeInitialized = false
 
 local sensorTable = {
 
-    rssi = {   -- VFR  VFR2_4G   --VFR 900m   
+    rssi = {   -- VFR  in transmiter
         name = "@i18n(sensors.rssi)@",
         mandatory = true,
         stats = true,
@@ -76,7 +76,7 @@ local sensorTable = {
         }
     },
 
-    link = {  --rx - RSSI 2.4  rssi_900m
+    link = {  --rx in transmiter
         name = "@i18n(sensors.link)@",
         mandatory = true,
         stats = true,
@@ -94,7 +94,7 @@ local sensorTable = {
         }
     },
 
-    voltage = {     --vfas in transmitter
+    voltage = {
         name = "@i18n(sensors.voltage)@",
         mandatory = true,
         stats = true,
@@ -107,16 +107,10 @@ local sensorTable = {
             sport = {
                     {appId = 0x0B50, subId = 0}, 
                     {appId = 0x0210, subId = 0}, 
-                 --   {appId = 0xF103, subId = 0},    --ADC2 ?
-                 --   {appId = 0xF103, subId = 1},
-                    {appId = 0x021F, subId = 0x11}
+                    {appId = 0xF103, subId = 0}, 
+                    {appId = 0xF103, subId = 1}
                 },
-            crsf = {
-                    {crsfId = 0x08, subId = 0},
-                    "Rx Batt",
-                    "RxBatt",
-                    "VFAS"
-                },
+            crsf = {"Rx Batt"},
             spektrum = {"LiPo1", "LiPo2", "RxBatt"}
         }
     },
@@ -134,12 +128,7 @@ local sensorTable = {
             sport = {
                     {appId = 0x0B60, subId = 0}, 
                     {appId = 0x0500, subId = 0},
-                    {appId = 0x050F, subId = 0x04}
-                },
-            crsf = {
-                    {crsfId = 0x02, subId = 3},
-                    "RPM",
-                    "Headspeed"
+                    {appId = 0x050F, subId = 4}
                 }
         }
     },
@@ -158,7 +147,7 @@ local sensorTable = {
                     {appId = 0x060F, subId = 0x12},
                     {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0600}
                     }, 
-            crsf = {"Rx Batt%", "RxBatt%"}
+            crsf = {"Rx Batt%"}
         }
     },
 
@@ -173,10 +162,7 @@ local sensorTable = {
         sensors = {
             sim = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE1}}, 
             sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE1}}, 
-            crsf = {
-                    {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE1},
-                    {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FDF}
-                }
+            crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE1}}
         }
     },
 
@@ -207,14 +193,14 @@ local sensorTable = {
             sport = {
                     {appId = 0x0B50, subId = 1}, 
                     {appId = 0x0200, subId = 0}, 
-                    {appId = 0x020F, subId = 0x02}
+                    {appId = 0x020F, subId = 2}
             },
             crsf = {"Rx Current"},
             spektrum = {"ESC current"}
         }
     },
 
-    temp_esc = {   -- temp1 in transmitter
+    temp_esc = {
         name = "@i18n(sensors.esc_temp)@",
         mandatory = false,
         stats = true,
@@ -339,7 +325,7 @@ local sensorTable = {
         }
     },
 
-    bec_voltage = {    --rxbatt in transmitter
+    bec_voltage = {
         name = "@i18n(sensors.bec_voltage)@",
         mandatory = true,
         stats = true,
@@ -754,269 +740,6 @@ local sensorTable = {
 
 }
 
-local sportPhase1Resolver = {
-    voltage = {
-        names = {"VFAS", "vfas", "voltage", "batv", "battery"},
-        range = {min = 0, max = 100}
-    },
-    rxbatt = {
-        names = {"RxBatt", "rx batt", "bec voltage", "bec volt", "becv"},
-        range = {min = 2, max = 12.6}
-    },
-    rpm = {
-        names = {"RPM", "headspeed", "headspeed", "rotor"},
-        range = {min = 0, max = 25000}
-    },
-    current = {
-        names = {"Current", "esc current", "rx current", "curr"},
-        range = {min = 0, max = 600}
-    },
-    consumption = {
-        names = {"consumption", "Bat1cons.", "cons", "mah", "capacity", "rx cons", "bat1cons", "bat2cons"},
-        range = {min = 0, max = 10000}
-    }
-}
-
-local function safeMethodCall(source, methodName)
-    if not source then
-        return nil
-    end
-
-    local fn = source[methodName]
-    if type(fn) ~= "function" then
-        return nil
-    end
-
-    local ok, value = pcall(fn, source)
-    if not ok then
-        return nil
-    end
-
-    return value
-end
-
-local function normalizeLookupText(value)
-    if value == nil then
-        return ""
-    end
-
-    return tostring(value):lower():gsub("[%s_%-]+", "")   -- removes spaces, underscores, and dashes for more flexible matching
-end
-
-local function isPhase1SportKey(sensorKey)
-    return sportPhase1Resolver[sensorKey] ~= nil
-end
-
-local sportResolvedBindings = {}
-
-local function cloneQuery(query)
-    if type(query) ~= "table" then
-        return query
-    end
-
-    local copy = {}
-    for k, v in pairs(query) do
-        copy[k] = v
-    end
-    return copy
-end
-
-local function getModelBindingKey()
-    local path = model and model.path and model.path() or ""
-    local name = model and model.name and model.name() or ""
-    local raw = path ~= "" and path or name
-
-    if dashx and dashx.utils and dashx.utils.sanitize_filename then
-        return dashx.utils.sanitize_filename(raw) or "default"
-    end
-
-    return raw ~= "" and raw or "default"
-end
-
-local function getSavedSportBinding(sensorKey)
-    local modelKey = getModelBindingKey()
-    local modelBindings = sportResolvedBindings[modelKey]
-    local binding = modelBindings and modelBindings[sensorKey] or nil
-    if not binding then
-        return nil
-    end
-
-    local source = system.getSource(binding.query)
-    if not source then
-        modelBindings[sensorKey] = nil
-        return nil
-    end
-
-    local expectedUnit = sensorTable[sensorKey] and sensorTable[sensorKey].unit or nil
-    local sourceUnit = safeMethodCall(source, "unit")
-    if expectedUnit ~= nil and sourceUnit ~= nil and expectedUnit ~= sourceUnit then
-        modelBindings[sensorKey] = nil
-        return nil
-    end
-
-    local state = safeMethodCall(source, "state")
-    if state == false then
-        modelBindings[sensorKey] = nil
-        return nil
-    end
-
-    print("[DEBUG] telemetry.resolveSportSource: cache hit key=" .. sensorKey .. " model=" .. modelKey)
-    return source
-end
-
-local function saveSportBinding(sensorKey, query, score)
-    if query == nil then
-        return
-    end
-
-    local modelKey = getModelBindingKey()
-    sportResolvedBindings[modelKey] = sportResolvedBindings[modelKey] or {}
-    sportResolvedBindings[modelKey][sensorKey] = {
-        query = cloneQuery(query),
-        score = score,
-        savedAt = os.clock()
-    }
-end
-
-local function scoreSportCandidate(sensorKey, source, queryMeta)
-    local profile = sportPhase1Resolver[sensorKey]
-    if not profile then
-        return -math.huge
-    end
-
-    local score = 0
-    local nameScore = 0
-    local unitScore = 0
-
-    local sourceName = safeMethodCall(source, "name")
-    local normalizedName = normalizeLookupText(sourceName)
-
-    local expectedUnit = sensorTable[sensorKey] and sensorTable[sensorKey].unit or nil
-    local sourceUnit = safeMethodCall(source, "unit")
-
-    if expectedUnit ~= nil and sourceUnit ~= nil then
-        if expectedUnit == sourceUnit then
-            unitScore = 40
-        else
-            unitScore = -20
-        end
-    end
-
-    for _, alias in ipairs(profile.names or {}) do
-        local normalizedAlias = normalizeLookupText(alias)
-        if normalizedAlias ~= "" then
-            if normalizedName == normalizedAlias then
-                nameScore = math.max(nameScore, 40)
-            elseif normalizedName:find(normalizedAlias, 1, true) then
-                nameScore = math.max(nameScore, 24)
-            end
-        end
-    end
-
-    local value = safeMethodCall(source, "value")
-    if type(value) == "number" then
-        local range = profile.range
-        if range and value >= range.min and value <= range.max then
-            score = score + 10
-        else
-            score = score - 10
-        end
-    end
-
-    local state = safeMethodCall(source, "state")
-    if state == nil or state ~= false then
-        score = score + 5
-    end
-
-    if queryMeta and queryMeta.kind == "configured" then
-        score = score + 3
-    elseif queryMeta and queryMeta.kind == "alias" then
-        score = score + 5
-    end
-
-    score = score + nameScore + unitScore
-    return score, nameScore, unitScore, sourceName, sourceUnit
-end
-
-local function resolveSportSourcePhase1(sensorKey)
-    if not isPhase1SportKey(sensorKey) then
-        return nil
-    end
-
-    local savedSource = getSavedSportBinding(sensorKey)
-    if savedSource then
-        return savedSource
-    end
-
-    local sportSensors = sensorTable[sensorKey] and sensorTable[sensorKey].sensors and sensorTable[sensorKey].sensors.sport or {}
-    local profile = sportPhase1Resolver[sensorKey]
-    local candidates = {}
-    local seen = {}
-
-    local function pushCandidate(query, meta)
-        local source = system.getSource(query)
-        if not source or seen[source] then
-            return
-        end
-        seen[source] = true
-        candidates[#candidates + 1] = {source = source, meta = meta}
-    end
-
-    local function addCandidate(query, meta)
-        pushCandidate(query, meta)
-
-        if type(query) == "string" then
-            local lower = string.lower(query)
-            local upper = string.upper(query)
-            if lower ~= query then
-                pushCandidate(lower, meta)
-            end
-            if upper ~= query then
-                pushCandidate(upper, meta)
-            end
-        end
-    end
-
-    for _, query in ipairs(sportSensors) do
-        addCandidate(query, {kind = "configured", query = query})
-    end
-
-    for _, alias in ipairs(profile.names or {}) do
-        addCandidate(alias, {kind = "alias", query = alias})
-    end
-
-    local bestCandidate = nil
-    for _, candidate in ipairs(candidates) do
-        local score, nameScore, unitScore, sourceName, sourceUnit = scoreSportCandidate(sensorKey, candidate.source, candidate.meta)
-        if score > -math.huge then
-            print(
-                "[DEBUG] telemetry.resolveSportSource: candidate key=" .. sensorKey ..
-                    " score=" .. tostring(score) ..
-                    " nameScore=" .. tostring(nameScore) ..
-                    " unitScore=" .. tostring(unitScore) ..
-                    " name=" .. tostring(sourceName) ..
-                    " unit=" .. tostring(sourceUnit)
-            )
-
-            if not bestCandidate or score > bestCandidate.score then
-                bestCandidate = {source = candidate.source, score = score, query = candidate.meta and candidate.meta.query or nil}
-            end
-        end
-    end
-
-    if bestCandidate and bestCandidate.score >= 30 then
-        saveSportBinding(sensorKey, bestCandidate.query, bestCandidate.score)
-        print(
-            "[DEBUG] telemetry.resolveSportSource: selected key=" .. sensorKey ..
-                " score=" .. tostring(bestCandidate.score)
-        )
-        return bestCandidate.source
-    end
-
-    print("[DEBUG] telemetry.resolveSportSource: no confident match for key=" .. sensorKey)
-    return nil
-end
-
 function telemetry.getSensorProtocol() return protocol end
 
 function telemetry.listSensors()
@@ -1112,16 +835,6 @@ function telemetry.getSensorSource(name)
     elseif dashx.session.telemetryType == "sport" then
         protocol = "sport"
         print("[DEBUG] telemetry.getSensorSource: trying protocol 'sport' for '" .. name .. "'")
-
-        local resolvedSportSource = resolveSportSourcePhase1(name)
-        if resolvedSportSource then
-            cache_misses = cache_misses + 1
-            sensors[name] = resolvedSportSource
-            mark_hot(name)
-            print("[DEBUG] telemetry.getSensorSource: RESOLVED '" .. name .. "' via sport phase1 resolver")
-            return resolvedSportSource
-        end
-
         for _, sensor in ipairs(sensorTable[name].sensors.sport or {}) do
             local source = system.getSource(sensor)
             if source then

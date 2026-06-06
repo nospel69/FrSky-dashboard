@@ -33,18 +33,7 @@ local function addLine(parent, label)
 end
 
 local function ensureWidgetDefaults(widget)
-    if widget == nil then
-        widget = {}
-    end
     dashx.runtime.readWidgetSettings(widget)
-    return widget
-end
-
-local function persistWidgetSettings(widget)
-    if not widget then
-        return false
-    end
-    return dashx.runtime.writeWidgetSettings(widget)
 end
 
 local function getModelThemeValue(widget)
@@ -127,26 +116,18 @@ end
 
 function configui.read(widget)
     if not widget or not widget._modelKey then
-        widget = ensureWidgetDefaults(widget)
+        ensureWidgetDefaults(widget)
     end
     return true
 end
 
 function configui.write(widget)
-    if not widget then
-        return true
-    end
-
-    if next(widget) == nil then
-        return true
-    end
-
     return dashx.runtime.writeWidgetSettings(widget)
 end
 
 function configui.configure(widget)
     if not widget or not widget._modelKey then
-        widget = ensureWidgetDefaults(widget)
+        ensureWidgetDefaults(widget)
     end
 
     local themeLine = addLine(nil, "Theme for this model")
@@ -156,7 +137,6 @@ function configui.configure(widget)
         return encodeModelThemeChoice(widget, themeValueMap, firstThemeIdx)
     end, function(value)
         applyModelThemeChoice(widget, themeList, value)
-        persistWidgetSettings(widget)
     end)
 
     local batteryPanel = form.addExpansionPanel("Battery")
@@ -170,7 +150,6 @@ function configui.configure(widget)
         return clamp(math.floor(tonumber(widget.calc_local) or 0), 0, 1)
     end, function(value)
         widget.calc_local = clamp(math.floor(tonumber(value) or 0), 0, 1)
-        persistWidgetSettings(widget)
     end)
 
     local capacityLine = addLine(batteryPanel, "Battery Capacity")
@@ -178,7 +157,6 @@ function configui.configure(widget)
         return math.floor(tonumber(widget.batteryCapacity) or 2200)
     end, function(value)
         widget.batteryCapacity = clamp(math.floor(tonumber(value) or 2200), 0, 10000000)
-        persistWidgetSettings(widget)
     end)
     if capacityField and capacityField.suffix then
         capacityField:suffix("mAh")
@@ -189,7 +167,6 @@ function configui.configure(widget)
         return math.floor(tonumber(widget.batteryCellCount) or 3)
     end, function(value)
         widget.batteryCellCount = clamp(math.floor(tonumber(value) or 3), 1, 24)
-        persistWidgetSettings(widget)
     end)
     if cellsField and cellsField.suffix then
         cellsField:suffix("S")
@@ -200,7 +177,6 @@ function configui.configure(widget)
         return math.floor(tonumber(widget.vbatwarningcellvoltage) or 35)
     end, function(value)
         widget.vbatwarningcellvoltage = clamp(math.floor(tonumber(value) or 35), 5, 600)
-        persistWidgetSettings(widget)
     end)
     if warnField then
         warnField:suffix("v")
@@ -212,7 +188,6 @@ function configui.configure(widget)
         return math.floor(tonumber(widget.vbatmincellvoltage) or 33)
     end, function(value)
         widget.vbatmincellvoltage = clamp(math.floor(tonumber(value) or 33), 5, 600)
-        persistWidgetSettings(widget)
     end)
     if minField then
         minField:suffix("v")
@@ -224,7 +199,6 @@ function configui.configure(widget)
         return math.floor(tonumber(widget.vbatmaxcellvoltage) or 43)
     end, function(value)
         widget.vbatmaxcellvoltage = clamp(math.floor(tonumber(value) or 43), 5, 600)
-        persistWidgetSettings(widget)
     end)
     if maxField then
         maxField:suffix("v")
@@ -236,7 +210,6 @@ function configui.configure(widget)
         return math.floor(tonumber(widget.vbatfullcellvoltage) or 41)
     end, function(value)
         widget.vbatfullcellvoltage = clamp(math.floor(tonumber(value) or 41), 5, 600)
-        persistWidgetSettings(widget)
     end)
     if fullField then
         fullField:suffix("v")
@@ -248,7 +221,6 @@ function configui.configure(widget)
         return math.floor(tonumber(widget.consumptionWarningPercentage) or 30)
     end, function(value)
         widget.consumptionWarningPercentage = clamp(math.floor(tonumber(value) or 30), 0, 100)
-        persistWidgetSettings(widget)
     end)
     if reserveField and reserveField.suffix then
         reserveField:suffix("%")
@@ -259,7 +231,6 @@ function configui.configure(widget)
         return math.floor(tonumber(widget.consumptionScale) or 100)
     end, function(value)
         widget.consumptionScale = clamp(math.floor(tonumber(value) or 100), 50, 200)
-        persistWidgetSettings(widget)
     end)
     if scaleField and scaleField.suffix then
         scaleField:suffix("%")
@@ -273,7 +244,6 @@ function configui.configure(widget)
         return decodeSwitchSpec(widget.armswitch)
     end, function(newValue)
         widget.armswitch = encodeSwitchSource(newValue)
-        persistWidgetSettings(widget)
     end)
 
     local throttleHoldLine = addLine(triggersPanel, "Throttle Hold Switch")
@@ -281,7 +251,6 @@ function configui.configure(widget)
         return decodeSwitchSpec(widget.throttleholdswitch)
     end, function(newValue)
         widget.throttleholdswitch = encodeSwitchSource(newValue)
-        persistWidgetSettings(widget)
     end)
 
     local inflightModeLine = addLine(triggersPanel, "Inflight Detection")
@@ -325,7 +294,6 @@ function configui.configure(widget)
             widget.inflightswitch = false
             clearInflightSwitchDisplay()
         end
-        persistWidgetSettings(widget)
         updateInflightSwitchEnabled()
         refreshConfigureForm()
     end)
@@ -342,7 +310,6 @@ function configui.configure(widget)
         else
             widget.inflightswitch = false
         end
-        persistWidgetSettings(widget)
     end)
     updateInflightSwitchEnabled()
 
@@ -351,7 +318,6 @@ function configui.configure(widget)
         return math.floor(tonumber(widget.inflightswitch_delay) or 10)
     end, function(value)
         widget.inflightswitch_delay = clamp(math.floor(tonumber(value) or 10), 0, 120)
-        persistWidgetSettings(widget)
     end)
     if delayField and delayField.suffix then
         delayField:suffix("s")

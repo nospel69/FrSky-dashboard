@@ -109,7 +109,7 @@ fsdash.config = {
     version = {major = 2, minor = 3, revision = 0, suffix = "DEV"},
     ethosVersion = {1, 6, 2},
     supportedMspApiVersion = {"12.07", "12.08", "12.09"},
-    defaultLogLevel = "debug"
+    defaultLogLevel = "off"
 }
 
 local userPreferenceDefaults = {
@@ -139,7 +139,7 @@ local userPreferenceDefaults = {
         compile = true,
         devtools = false,
         logtofile = false,
-        loglevel = "debug",
+        loglevel = "off",
         logmsp = false,
         logmspQueue = false,
         memstats = false,
