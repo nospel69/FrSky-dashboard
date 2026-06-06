@@ -175,11 +175,6 @@
       "translation": "Battery Consumption",
       "needs_translation": "false"
     },
-    "Bat2cons.": {
-      "english": "Battery 2 Consumption",
-      "translation": "Battery 2 Consumption",
-      "needs_translation": "false"
-    },
     "RxBatt": {
       "english": "Rx Battery",
       "translation": "Rx Battery",
@@ -228,16 +223,6 @@
     "gps_sats": {
       "english": "GPS Sats",
       "translation": "GPS Sats",
-      "needs_translation": "false"
-    },
-    "GASS_res%": {
-      "english": "GASS Res%",
-      "translation": "GASS Res%",
-      "needs_translation": "false"
-    },
-    "ADC2": {
-      "english": "ADC 2",
-      "translation": "ADC 2",
       "needs_translation": "false"
     }
   }

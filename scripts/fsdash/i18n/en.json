@@ -5139,11 +5139,6 @@
   },
   "telemetry": {
     "sensors": {
-      "ADC2": {
-        "english": "ADC 2",
-        "needs_translation": "false",
-        "translation": "ADC 2"
-      },
       "ADC2.4G": {
         "english": "ADC 2.4GHz",
         "needs_translation": "false",
@@ -5153,16 +5148,6 @@
         "english": "Battery Consumption",
         "needs_translation": "false",
         "translation": "Battery Consumption"
-      },
-      "Bat2cons.": {
-        "english": "Battery 2 Consumption",
-        "needs_translation": "false",
-        "translation": "Battery 2 Consumption"
-      },
-      "GASS_res%": {
-        "english": "GASS Res%",
-        "needs_translation": "false",
-        "translation": "GASS Res%"
       },
       "Power900M": {
         "english": "Power 900MHz",
