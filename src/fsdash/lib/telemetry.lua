@@ -98,7 +98,10 @@ local sensorTable = {
         unit_string = "V",
         sensors = {
             sim = {{uid = 0x5002, unit = UNIT_VOLT, dec = 2, value = function() return dashx.utils.simSensors('voltage') end, min = 0, max = 3000}},
-            sport = {{appId = 0x0B50, subId = 0}, {appId = 0x0210, subId = 0}, {appId = 0xF103, subId = 0}, {appId = 0xF103, subId = 1}},
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x021F},
+                     {appId = 0x0B50, subId = 0}, 
+                     {appId = 0x0210, subId = 0} 
+                     },
             crsf = {"Rx Batt"},
             spektrum = {"LiPo1", "LiPo2", "RxBatt"}
         }
@@ -114,7 +117,9 @@ local sensorTable = {
         unit_string = "rpm",
         sensors = {
             sim = {{uid = 0x5003, unit = UNIT_RPM, dec = nil, value = function() return dashx.utils.simSensors('rpm') end, min = 0, max = 4000}}, 
-            sport = {{appId = 0x0B60, subId = 0}, {appId = 0x0500, subId = 0}}
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x050F},
+                     {appId = 0x0B60, subId = 0}, 
+                     {appId = 0x0500, subId = 0}}
         }
     },
 
@@ -172,7 +177,9 @@ local sensorTable = {
         unit_string = "A",
         sensors = {
             sim = {{uid = 0x5004, unit = UNIT_AMPERE, dec = 0, value = function() return dashx.utils.simSensors('current') end, min = 0, max = 300}}, 
-            sport = {{appId = 0x0B50, subId = 1}, {appId = 0x0200, subId = 0}}, 
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x020F},
+                     {appId = 0x0B50, subId = 1}, 
+                     {appId = 0x0200, subId = 0}}, 
             crsf = {"Rx Current"},
             spektrum = {"ESC current"}
         }
@@ -187,7 +194,8 @@ local sensorTable = {
         unit = UNIT_DEGREE,
         sensors = {
             sim = {{uid = 0x5005, unit = UNIT_DEGREE, dec = 0, value = function() return dashx.utils.simSensors('temp_esc') end, min = 0, max = 100}}, 
-            sport = {{appId = 0x0B70, subId = 0}},
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x040F},
+                     {appId = 0x0B70, subId = 0}},
             spektrum = {"ESC temp"},
         },
         localizations = function(value)
@@ -211,7 +219,8 @@ local sensorTable = {
         unit = UNIT_METER,
         sensors = {
             sim = {{uid = 0x5016, unit = UNIT_METER, dec = 0, value = function() return dashx.utils.simSensors('altitude') end, min = 0, max = 50000}},
-            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0820}, {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0100}},
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0820}, 
+                     {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0100}},
             crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x10B2}},
             crsfLegacy = {nil}
         },
@@ -235,7 +244,9 @@ local sensorTable = {
         unit_string = "mAh",
         sensors = {
             sim = {{uid = 0x5008, unit = UNIT_MILLIAMPERE_HOUR, dec = 0, value = function() return dashx.utils.simSensors('consumption') end, min = 0, max = 5000}}, 
-            sport = {{appId = 0x0B60, subId = 1}, {appId = 0x0B30, subId = 0}}, 
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0B3F},
+                     {appId = 0x0B60, subId = 1}, 
+                     {appId = 0x0B30, subId = 0}}, 
             crsf = {"Rx Cons"}}
     },
 
@@ -306,8 +317,10 @@ local sensorTable = {
         unit_string = "V",
         sensors = {
             sim = {{uid = 0x5017, unit = UNIT_VOLT, dec = 2, value = function() return dashx.utils.simSensors('bec_voltage') end, min = 0, max = 3000}},
-            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0901}, {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0219}},
-            crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1081}, {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1049}},
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0901}, 
+                     {category = CATEGORY_TELEMETRY_SENSOR, appId = 0xF103}},
+            crsf = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1081}, 
+                     {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x1049}},
             crsfLegacy = {nil}
         }
     },
@@ -354,7 +367,8 @@ local sensorTable = {
         stats = false,
         sensors = {
             sim = {{uid = 0x5022, unit = UNIT_DEGREE, dec = 1, value = function() return dashx.utils.simSensors('attyaw') end, min = -1800, max = 3600}}, 
-            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5210}, {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0830}}, 
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5210}, 
+                     {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0830}}, 
             crsf = {"Yaw"}
         }
     },
@@ -365,7 +379,8 @@ local sensorTable = {
         stats = false,
         sensors = {
             sim = {{uid = 0x5023, unit = UNIT_DEGREE, dec = 1, value = function() return dashx.utils.simSensors('attroll') end, min = -1800, max = 3600}},
-            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 0}, {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0440, subId = 0}},
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 0}, 
+                     {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0440, subId = 0}},
             crsf = {"Roll"}
         }
     },
@@ -376,7 +391,8 @@ local sensorTable = {
         stats = false,
         sensors = {
             sim = {{uid = 0x5024, unit = UNIT_DEGREE, dec = 1, value = function() return dashx.utils.simSensors('attpitch') end, min = -1800, max = 3600}},
-            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1}, {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0430, subId = 0}},
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0730, subId = 1}, 
+                     {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0430, subId = 0}},
             crsf = {"Pitch"}
         }
     },
@@ -410,7 +426,8 @@ local sensorTable = {
         stats = false,
         sensors = {
             sim = {{uid = 0x5026, unit = UNIT_KNOT, dec = 0, value = function() return dashx.utils.simSensors('gps_sats') end, min = -1800, max = 3600}},
-            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0480, subId = 0}, {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0410, subId = 0}},
+            sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0480, subId = 0}, 
+                     {category = CATEGORY_TELEMETRY_SENSOR, appId = 0x0410, subId = 0}},
             crsfLegacy = {"GPS Sats"}
         }
     }
