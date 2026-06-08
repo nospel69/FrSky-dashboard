@@ -188,6 +188,8 @@ An optional `category` field restricts the source search:
 ```lua
 sport = {{category = CATEGORY_TELEMETRY_SENSOR, appId = 0x5FE1}}
 ```
+NOTE:  for FrSky the subId is not usable as there may be 32 bites of data in a block of data for a given App Id.  for example RSSI  RSSI 900Mhz & RSSI 2.4 Ghz may be under one App Id.  So the second way is how you will have to map some of them.  
+I also have not confirmed if the different proticals will do different things TD, Access, Acccst, s.Bus, S.Port, F.Port, F.Port2, RB, Ethos Internal
 
 #### `crsf`
 

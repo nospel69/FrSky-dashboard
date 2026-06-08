@@ -45,6 +45,11 @@
       "translation": "ESC Temperature",
       "needs_translation": "false"
     },
+    "temp_esc": {
+      "english": "ESC Temperature",
+      "translation": "ESC Temperature",
+      "needs_translation": "false"
+    },
     "temp1": {
       "english": "ESC Temperature",
       "translation": "ESC Temperature",

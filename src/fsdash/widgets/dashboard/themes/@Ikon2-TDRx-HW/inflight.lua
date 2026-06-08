@@ -171,7 +171,7 @@ local function buildBoxes(W)
             gaugepadding = opts.gaugepadding,
             valuepaddingtop = opts.valuepaddingtop,
             thresholds = {{value = 30, fillcolor = "red", textcolor = colorMode.textcolor}, {value = 50, fillcolor = "orange", textcolor = colorMode.textcolor}, {value = 140, fillcolor = colorMode.fillcolor, textcolor = colorMode.textcolor}}
-        }, {col = 1, row = 13, rowspan = 2, type = "text", subtype = "telemetry", nosource = "-", source = "temp_esc", transform = "floor", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor},
+        }, {col = 1, row = 13, rowspan = 2, type = "text", subtype = "telemetry", nosource = "-", source = "transFlightMode", transform = "floor", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor},
         {col = 4, row = 13, rowspan = 2, type = "time", subtype = "flight", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor},
         {col = 3, row = 13, rowspan = 2, type = "text", subtype = "telemetry", source = "rpm", nosource = "-", unit = "rpm", transform = "floor", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor},
         {col = 2, row = 13, rowspan = 2, type = "text", subtype = "telemetry", source = "rssi", nosource = "-", unit = "dB", transform = "floor", bgcolor = colorMode.bgcolor, titlecolor = colorMode.titlecolor, textcolor = colorMode.titlecolor}
