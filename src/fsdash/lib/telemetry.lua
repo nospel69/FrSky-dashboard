@@ -234,7 +234,7 @@ local sensorTable = {
         end
     },
 
-    consumption = {
+    consumption = {   -- this is what is used to drive the Smart fule 
         name = "@i18n(sensors.consumption)@",
         mandatory = true,
         stats = true,

@@ -146,8 +146,8 @@ local function smartFuelCalc()
 
     if reserve > 60 then
         reserve = 35
-    elseif reserve < 15 then
-        reserve = 35
+    elseif reserve < 10 then
+        reserve = 20
     end
 
     if packCapacity < 10 or cellCount == 0 or maxCellV <= minCellV or fullCellV <= 0 then
